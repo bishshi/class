@@ -695,6 +695,38 @@ h2 {
   gap: 18px;
 }
 
+.sticky-message-band {
+  background:
+    linear-gradient(0deg, rgba(255, 253, 247, 0.45), rgba(255, 253, 247, 0.45)),
+    var(--soft);
+}
+
+.message-preamble {
+  margin-bottom: 24px;
+}
+
+.twikoo-empty-note {
+  padding: 28px;
+  border: 1px dashed rgba(55, 109, 90, 0.34);
+  border-radius: 8px;
+  background: #fffdf7;
+}
+
+.twikoo-empty-note h2 {
+  margin-bottom: 10px;
+  font-size: clamp(24px, 3vw, 34px);
+}
+
+.twikoo-empty-note p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.twikoo-empty-note code {
+  color: var(--green);
+  font-weight: 800;
+}
+
 .ending {
   text-align: center;
   background: #1f2b2a;
@@ -736,6 +768,9 @@ footer {
   .stats,
   .section-title,
   .message-wall,
+  .twikoo-sticky-wall .tk-comments,
+  .twikoo-sticky-wall .tk-comments-container,
+  .twikoo-sticky-wall .tk-comments-list,
   .person-hero-inner,
   .detail-grid {
     grid-template-columns: 1fr;
@@ -806,6 +841,11 @@ footer {
   .scrap-photo,
   .scrap-photo:nth-child(n) {
     grid-column: auto;
+  }
+
+  .twikoo-sticky-wall .tk-submit,
+  .twikoo-sticky-wall .tk-comment {
+    transform: none !important;
   }
 
   .scrap-image {
