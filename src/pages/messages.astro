@@ -1,0 +1,39 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { featuredMessage, messages, messagesIntro } from "../data/messages";
+import { site } from "../data/site";
+---
+
+<BaseLayout title={`${messagesIntro.title} · ${site.className}`}>
+  <main class="page-main">
+    <section class="page-hero">
+      <div class="section-inner">
+        <a class="back-link" href="/">返回首页</a>
+        <p class="eyebrow">Messages</p>
+        <h1>{messagesIntro.title}</h1>
+        <p>{messagesIntro.text}</p>
+      </div>
+    </section>
+
+    <section class="gallery-band">
+      <div class="section-inner">
+        <div class="message-wall">
+          <article class="message featured">
+            <p>“{featuredMessage.text}”</p>
+            <cite>{featuredMessage.author}</cite>
+          </article>
+          <div class="small-messages">
+            {
+              messages.map((message) => (
+                <article class="message">
+                  <h3>{message.title}</h3>
+                  <p>{message.text}</p>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

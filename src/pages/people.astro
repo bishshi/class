@@ -1,0 +1,36 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { people, peopleIntro } from "../data/people";
+import { site } from "../data/site";
+---
+
+<BaseLayout title={`${peopleIntro.title} · ${site.className}`}>
+  <main class="page-main">
+    <section class="page-hero">
+      <div class="section-inner">
+        <a class="back-link" href="/">返回首页</a>
+        <p class="eyebrow">Classmates</p>
+        <h1>{peopleIntro.title}</h1>
+        <p>{peopleIntro.text}</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-inner">
+        <div class="people-grid page-grid">
+          {
+            people.map((person) => (
+              <article class="person">
+                <div class="avatar">{person.initial}</div>
+                <h3>
+                  {person.name} · {person.location}
+                </h3>
+                <p>{person.text}</p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

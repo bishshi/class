@@ -245,6 +245,55 @@ h2 {
   background: var(--soft);
 }
 
+.page-main {
+  min-height: 100vh;
+}
+
+.page-hero {
+  padding-top: 132px;
+  padding-bottom: 70px;
+  color: #fffdf7;
+  background:
+    linear-gradient(135deg, rgba(31, 43, 42, 0.96), rgba(55, 109, 90, 0.88)),
+    #1f2b2a;
+}
+
+.page-hero h1 {
+  max-width: 900px;
+}
+
+.page-hero p:not(.eyebrow) {
+  max-width: 680px;
+  margin: 22px 0 0;
+  color: rgba(255, 253, 247, 0.82);
+  font-size: clamp(17px, 2vw, 21px);
+}
+
+.back-link,
+.section-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 9px 15px;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.back-link {
+  margin-bottom: 28px;
+  border: 1px solid rgba(255, 253, 247, 0.38);
+  color: #fffdf7;
+  background: rgba(255, 253, 247, 0.12);
+}
+
+.section-link {
+  margin-top: 26px;
+  border: 1px solid var(--line);
+  color: var(--green);
+  background: #fff;
+}
+
 .photo-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -260,30 +309,30 @@ h2 {
   color: #fff;
   background:
     linear-gradient(0deg, rgba(26, 35, 34, 0.76), rgba(26, 35, 34, 0.08)),
-    var(--tile-bg);
+    var(--photo-image, var(--tile-bg));
   background-size: cover;
   background-position: center;
   box-shadow: var(--shadow);
 }
 
-.photo-card:nth-child(1) {
+.photo-card:nth-child(4n + 1) {
   --tile-bg: linear-gradient(135deg, #376d5a, #e8a84c);
 }
 
-.photo-card:nth-child(2) {
+.photo-card:nth-child(4n + 2) {
   --tile-bg: linear-gradient(135deg, #456f94, #f0c66d);
 }
 
-.photo-card:nth-child(3) {
+.photo-card:nth-child(4n + 3) {
   --tile-bg: linear-gradient(135deg, #c96452, #f1d9a6);
 }
 
-.photo-card:nth-child(4) {
+.photo-card:nth-child(4n) {
   --tile-bg: linear-gradient(135deg, #263e5c, #7ab28b);
 }
 
-.photo-card:nth-child(2),
-.photo-card:nth-child(4) {
+.photo-card:nth-child(4n + 2),
+.photo-card:nth-child(4n) {
   min-height: 300px;
 }
 
@@ -302,6 +351,10 @@ h2 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
+}
+
+.page-grid {
+  align-items: stretch;
 }
 
 .person {

@@ -1,0 +1,31 @@
+---
+import "../styles/global.css";
+import { navItems, site } from "../data/site";
+
+interface Props {
+  title?: string;
+}
+
+const { title = site.title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site-header" aria-label="网站导航">
+      <a class="brand" href="/">{site.className}</a>
+      <nav class="nav">
+        {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
+      </nav>
+    </header>
+
+    <slot />
+
+    <footer>{site.footer}</footer>
+  </body>
+</html>

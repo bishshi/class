@@ -1,0 +1,38 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { galleryIntro, photos } from "../data/photos";
+import { site } from "../data/site";
+---
+
+<BaseLayout title={`${galleryIntro.title} · ${site.className}`}>
+  <main class="page-main">
+    <section class="page-hero">
+      <div class="section-inner">
+        <a class="back-link" href="/">返回首页</a>
+        <p class="eyebrow">Gallery</p>
+        <h1>{galleryIntro.title}</h1>
+        <p>{galleryIntro.text}</p>
+      </div>
+    </section>
+
+    <section class="gallery-band">
+      <div class="section-inner">
+        <div class="photo-grid page-grid">
+          {
+            photos.map((photo) => (
+              <article
+                class="photo-card"
+                style={photo.image ? `--photo-image: url("${photo.image}")` : ""}
+              >
+                <div>
+                  <strong>{photo.title}</strong>
+                  <span>{photo.text}</span>
+                </div>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

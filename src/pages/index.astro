@@ -1,169 +1,157 @@
 ---
-import "../styles/global.css";
-import {
-  gallery,
-  messages,
-  navItems,
-  people,
-  site,
-  stats,
-  timeline
-} from "../data/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { galleryIntro, photos } from "../data/photos";
+import { featuredMessage, messages, messagesIntro } from "../data/messages";
+import { people, peopleIntro } from "../data/people";
+import { site, stats } from "../data/site";
+import { timeline, timelineIntro } from "../data/timeline";
+
+const previewTimeline = timeline.slice(0, 4);
+const previewPhotos = photos.slice(0, 4);
+const previewPeople = people.slice(0, 6);
 ---
 
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{site.title}</title>
-  </head>
-  <body>
-    <header class="site-header" aria-label="网站导航">
-      <a class="brand" href="#top">{site.className}</a>
-      <nav class="nav">
-        {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
-      </nav>
-    </header>
+<BaseLayout title={site.title}>
+  <section
+    id="top"
+    class="hero"
+    style={`--hero-image: url("${site.heroImage}")`}
+  >
+    <div class="hero-content">
+      <p class="eyebrow">{site.anniversary}</p>
+      <h1>{site.title}</h1>
+      <p>{site.subtitle}</p>
+      <div class="hero-actions">
+        <a class="button primary" href="/timeline/">翻开回忆</a>
+        <a class="button" href="/messages/">写一句话</a>
+      </div>
+    </div>
+  </section>
 
-    <section
-      id="top"
-      class="hero"
-      style={`--hero-image: url("${site.heroImage}")`}
-    >
-      <div class="hero-content">
-        <p class="eyebrow">{site.anniversary}</p>
-        <h1>{site.title}</h1>
-        <p>{site.subtitle}</p>
-        <div class="hero-actions">
-          <a class="button primary" href="#timeline">翻开回忆</a>
-          <a class="button" href="#messages">写一句话</a>
+  <aside class="stats" aria-label="纪念数据">
+    {
+      stats.map((item) => (
+        <div class="stat">
+          <strong>{item.value}</strong>
+          <span>{item.label}</span>
         </div>
+      ))
+    }
+  </aside>
+
+  <main>
+    <section id="timeline">
+      <div class="section-inner">
+        <div class="section-title">
+          <h2>{timelineIntro.title}</h2>
+          <p>{timelineIntro.text}</p>
+        </div>
+
+        <div class="timeline">
+          {
+            previewTimeline.map((moment) => (
+              <article class="moment">
+                <time>{moment.date}</time>
+                <div>
+                  <h3>{moment.title}</h3>
+                  <p>{moment.text}</p>
+                </div>
+              </article>
+            ))
+          }
+        </div>
+
+        <a class="section-link" href="/timeline/">查看完整时间线</a>
       </div>
     </section>
 
-    <aside class="stats" aria-label="纪念数据">
-      {
-        stats.map((item) => (
-          <div class="stat">
-            <strong>{item.value}</strong>
-            <span>{item.label}</span>
-          </div>
-        ))
-      }
-    </aside>
+    <section id="gallery" class="gallery-band">
+      <div class="section-inner">
+        <div class="section-title">
+          <h2>{galleryIntro.title}</h2>
+          <p>{galleryIntro.text}</p>
+        </div>
 
-    <main>
-      <section id="timeline">
-        <div class="section-inner">
-          <div class="section-title">
-            <h2>从第一节课，到最后一次回头</h2>
-            <p>
-              把班级大事按时间放在这里。现在是示例内容，之后可以替换成军训、运动会、成人礼、百日誓师、毕业照等真实节点。
-            </p>
-          </div>
+        <div class="photo-grid">
+          {
+            previewPhotos.map((photo) => (
+              <article
+                class="photo-card"
+                style={photo.image ? `--photo-image: url("${photo.image}")` : ""}
+              >
+                <div>
+                  <strong>{photo.title}</strong>
+                  <span>{photo.text}</span>
+                </div>
+              </article>
+            ))
+          }
+        </div>
 
-          <div class="timeline">
+        <a class="section-link" href="/gallery/">查看全部照片</a>
+      </div>
+    </section>
+
+    <section id="people">
+      <div class="section-inner">
+        <div class="section-title">
+          <h2>{peopleIntro.title}</h2>
+          <p>{peopleIntro.text}</p>
+        </div>
+
+        <div class="people-grid">
+          {
+            previewPeople.map((person) => (
+              <article class="person">
+                <div class="avatar">{person.initial}</div>
+                <h3>
+                  {person.name} · {person.location}
+                </h3>
+                <p>{person.text}</p>
+              </article>
+            ))
+          }
+        </div>
+
+        <a class="section-link" href="/people/">查看所有同学</a>
+      </div>
+    </section>
+
+    <section id="messages" class="gallery-band">
+      <div class="section-inner">
+        <div class="section-title">
+          <h2>{messagesIntro.title}</h2>
+          <p>{messagesIntro.text}</p>
+        </div>
+
+        <div class="message-wall">
+          <article class="message featured">
+            <p>“{featuredMessage.text}”</p>
+            <cite>{featuredMessage.author}</cite>
+          </article>
+          <div class="small-messages">
             {
-              timeline.map((moment) => (
-                <article class="moment">
-                  <time>{moment.date}</time>
-                  <div>
-                    <h3>{moment.title}</h3>
-                    <p>{moment.text}</p>
-                  </div>
+              messages.slice(0, 2).map((message) => (
+                <article class="message">
+                  <h3>{message.title}</h3>
+                  <p>{message.text}</p>
                 </article>
               ))
             }
           </div>
         </div>
-      </section>
 
-      <section id="gallery" class="gallery-band">
-        <div class="section-inner">
-          <div class="section-title">
-            <h2>照片墙先留四个位置</h2>
-            <p>
-              后续可以把这些色块换成真实照片。建议每类选 6 到 12 张，少一点反而更有纪念册的质感。
-            </p>
-          </div>
+        <a class="section-link" href="/messages/">查看全部留言</a>
+      </div>
+    </section>
 
-          <div class="photo-grid">
-            {
-              gallery.map((item) => (
-                <article class="photo-card">
-                  <div>
-                    <strong>{item.title}</strong>
-                    <span>{item.text}</span>
-                  </div>
-                </article>
-              ))
-            }
-          </div>
-        </div>
-      </section>
-
-      <section id="people">
-        <div class="section-inner">
-          <div class="section-title">
-            <h2>一年后的我们</h2>
-            <p>
-              这里可以做成同学卡片：姓名、所在城市、学校或方向，以及一句想对大家说的话。
-            </p>
-          </div>
-
-          <div class="people-grid">
-            {
-              people.map((person) => (
-                <article class="person">
-                  <div class="avatar">{person.initial}</div>
-                  <h3>
-                    {person.name} · {person.location}
-                  </h3>
-                  <p>{person.text}</p>
-                </article>
-              ))
-            }
-          </div>
-        </div>
-      </section>
-
-      <section id="messages" class="gallery-band">
-        <div class="section-inner">
-          <div class="section-title">
-            <h2>留言墙</h2>
-            <p>可以把收集来的留言放在这里。老师寄语、同学短句、匿名祝福都很适合。</p>
-          </div>
-
-          <div class="message-wall">
-            <article class="message featured">
-              <p>“{messages.featured.text}”</p>
-              <cite>{messages.featured.author}</cite>
-            </article>
-            <div class="small-messages">
-              {
-                messages.items.map((message) => (
-                  <article class="message">
-                    <h3>{message.title}</h3>
-                    <p>{message.text}</p>
-                  </article>
-                ))
-              }
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="ending">
-        <div class="section-inner">
-          <h2>下一次见面，我们再补一张合照</h2>
-          <p>
-            这个网站会继续长大：添上真实照片、真实名字、真实留言，然后成为属于我们班的一本电子纪念册。
-          </p>
-        </div>
-      </section>
-    </main>
-
-    <footer>{site.footer}</footer>
-  </body>
-</html>
+    <section class="ending">
+      <div class="section-inner">
+        <h2>下一次见面，我们再补一张合照</h2>
+        <p>
+          这个网站会继续长大：添上真实照片、真实名字、真实留言，然后成为属于我们班的一本电子纪念册。
+        </p>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

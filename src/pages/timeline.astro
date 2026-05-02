@@ -1,0 +1,36 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../data/site";
+import { timeline, timelineIntro } from "../data/timeline";
+---
+
+<BaseLayout title={`${timelineIntro.title} · ${site.className}`}>
+  <main class="page-main">
+    <section class="page-hero">
+      <div class="section-inner">
+        <a class="back-link" href="/">返回首页</a>
+        <p class="eyebrow">Timeline</p>
+        <h1>{timelineIntro.title}</h1>
+        <p>{timelineIntro.text}</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-inner">
+        <div class="timeline">
+          {
+            timeline.map((moment) => (
+              <article class="moment">
+                <time>{moment.date}</time>
+                <div>
+                  <h3>{moment.title}</h3>
+                  <p>{moment.text}</p>
+                </div>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
