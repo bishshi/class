@@ -528,7 +528,7 @@ h2 {
 
 .person {
   min-height: 210px;
-  padding: 22px;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
@@ -546,6 +546,36 @@ h2 {
   transform: translateY(-3px);
   border-color: rgba(55, 109, 90, 0.34);
   box-shadow: 0 16px 38px rgba(39, 55, 52, 0.12);
+}
+
+.person-photo,
+.profile-photo {
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  color: #fffdf7;
+  background:
+    linear-gradient(0deg, rgba(31, 43, 42, 0.28), rgba(31, 43, 42, 0.04)),
+    var(--person-photo, linear-gradient(135deg, var(--accent), #e8a84c));
+  background-size: cover;
+  background-position: center;
+}
+
+.person-photo span,
+.profile-photo span {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 253, 247, 0.4);
+  border-radius: 50%;
+  background: rgba(31, 43, 42, 0.28);
+  font-weight: 900;
+  backdrop-filter: blur(8px);
+}
+
+.person-body {
+  padding: 20px 22px 22px;
 }
 
 .person-meta,
@@ -567,18 +597,6 @@ h2 {
   background: color-mix(in srgb, var(--green), white 88%);
   font-size: 13px;
   font-weight: 800;
-}
-
-.avatar {
-  width: 54px;
-  height: 54px;
-  display: grid;
-  place-items: center;
-  margin-bottom: 22px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--accent), white 72%);
-  color: var(--accent);
-  font-weight: 900;
 }
 
 .person:nth-child(1) { --accent: var(--green); }
@@ -605,12 +623,16 @@ h2 {
   backdrop-filter: blur(12px);
 }
 
-.profile-avatar {
+.profile-photo {
+  min-height: 230px;
+  margin-bottom: 22px;
+  border-radius: 6px;
+  --accent: #f1c979;
+}
+
+.profile-photo span {
   width: 72px;
   height: 72px;
-  margin-bottom: 22px;
-  background: #f1c979;
-  color: #21312d;
   font-size: 24px;
 }
 

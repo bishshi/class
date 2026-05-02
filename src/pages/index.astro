@@ -114,21 +114,25 @@ const previewPeople = people.slice(0, 6);
           {
             previewPeople.map((person) => (
               <a class="person person-link" href={`/people/${person.slug}/`}>
-                <div class="avatar">{person.initial}</div>
-                <h3>
-                  {person.name} · {person.location}
-                </h3>
-                <div class="person-meta">
-                  <span>{person.school}</span>
-                  <span>{person.direction}</span>
+                <div class="person-photo" style={person.photo ? `--person-photo: url("${person.photo}")` : ""}>
+                  <span>{person.initial}</span>
                 </div>
-                <p>{person.text}</p>
+                <div class="person-body">
+                  <h3>
+                    {person.name} · {person.location}
+                  </h3>
+                  <div class="person-meta">
+                    <span>{person.school}</span>
+                    <span>{person.direction}</span>
+                  </div>
+                  <p>{person.text}</p>
+                </div>
               </a>
             ))
           }
         </div>
 
-        <a class="section-link" href="/people/">查看所有同学</a>
+        <a class="section-link" href="/people/">查看如今的我们</a>
       </div>
     </section>
 

@@ -24,7 +24,9 @@ const { person } = Astro.props;
           <p>{person.text}</p>
         </div>
         <aside class="profile-card">
-          <div class="avatar profile-avatar">{person.initial}</div>
+          <div class="profile-photo" style={person.photo ? `--person-photo: url("${person.photo}")` : ""}>
+            <span>{person.initial}</span>
+          </div>
           <dl>
             <div>
               <dt>所在城市</dt>
@@ -37,6 +39,10 @@ const { person } = Astro.props;
             <div>
               <dt>方向</dt>
               <dd>{person.direction}</dd>
+            </div>
+            <div>
+              <dt>联系方式</dt>
+              <dd>{person.contact}</dd>
             </div>
           </dl>
         </aside>

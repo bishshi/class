@@ -21,18 +21,22 @@ import { site } from "../data/site";
           {
             people.map((person) => (
               <a class="person person-link" href={`/people/${person.slug}/`}>
-                <div class="avatar">{person.initial}</div>
-                <h3>
-                  {person.name} · {person.location}
-                </h3>
-                <div class="person-meta">
-                  <span>{person.school}</span>
-                  <span>{person.direction}</span>
+                <div class="person-photo" style={person.photo ? `--person-photo: url("${person.photo}")` : ""}>
+                  <span>{person.initial}</span>
                 </div>
-                <div class="keyword-row">
-                  {person.keywords.map((keyword) => <span>{keyword}</span>)}
+                <div class="person-body">
+                  <h3>
+                    {person.name} · {person.location}
+                  </h3>
+                  <div class="person-meta">
+                    <span>{person.school}</span>
+                    <span>{person.direction}</span>
+                  </div>
+                  <div class="keyword-row">
+                    {person.keywords.map((keyword) => <span>{keyword}</span>)}
+                  </div>
+                  <p>{person.text}</p>
                 </div>
-                <p>{person.text}</p>
               </a>
             ))
           }
