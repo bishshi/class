@@ -19,7 +19,18 @@ const { title = site.title } = Astro.props;
   <body>
     <header class="site-header" aria-label="网站导航">
       <a class="brand" href="/">{site.className}</a>
-      <nav class="nav">
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-label="打开菜单"
+        aria-controls="site-nav"
+        aria-expanded="false"
+      >
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </button>
+      <nav class="nav" id="site-nav">
         {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
       </nav>
     </header>
@@ -27,5 +38,36 @@ const { title = site.title } = Astro.props;
     <slot />
 
     <footer>{site.footer}</footer>
+    <script>
+      const header = document.querySelector(".site-header");
+      const toggle = document.querySelector(".nav-toggle");
+      const nav = document.querySelector("#site-nav");
+
+      if (header && toggle && nav) {
+        const closeMenu = () => {
+          header.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+          toggle.setAttribute("aria-label", "打开菜单");
+        };
+
+        toggle.addEventListener("click", () => {
+          const isOpen = header.classList.toggle("is-open");
+          toggle.setAttribute("aria-expanded", String(isOpen));
+          toggle.setAttribute("aria-label", isOpen ? "关闭菜单" : "打开菜单");
+        });
+
+        nav.addEventListener("click", (event) => {
+          if (event.target instanceof HTMLAnchorElement) {
+            closeMenu();
+          }
+        });
+
+        window.addEventListener("resize", () => {
+          if (window.matchMedia("(min-width: 821px)").matches) {
+            closeMenu();
+          }
+        });
+      }
+    </script>
   </body>
 </html>
