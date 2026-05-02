@@ -19,15 +19,25 @@ import { timeline, timelineIntro } from "../data/timeline";
       <div class="section-inner">
         <div class="timeline">
           {
-            timeline.map((moment) => (
-              <article class="moment">
-                <time>{moment.date}</time>
-                <div>
-                  <h3>{moment.title}</h3>
-                  <p>{moment.text}</p>
-                </div>
-              </article>
-            ))
+            timeline.map((moment) =>
+              moment.href ? (
+                <a class="moment moment-link" href={moment.href}>
+                  <time>{moment.date}</time>
+                  <div>
+                    <h3>{moment.title}</h3>
+                    <p>{moment.text}</p>
+                  </div>
+                </a>
+              ) : (
+                <article class="moment">
+                  <time>{moment.date}</time>
+                  <div>
+                    <h3>{moment.title}</h3>
+                    <p>{moment.text}</p>
+                  </div>
+                </article>
+              )
+            )
           }
         </div>
       </div>

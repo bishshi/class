@@ -222,6 +222,31 @@ h2 {
   box-shadow: 0 8px 28px rgba(39, 55, 52, 0.06);
 }
 
+.moment-link {
+  position: relative;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.moment-link::after {
+  content: "查看";
+  align-self: start;
+  justify-self: end;
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.moment-link:hover {
+  transform: translateY(-3px);
+  border-color: rgba(55, 109, 90, 0.34);
+  box-shadow: 0 16px 38px rgba(39, 55, 52, 0.12);
+}
+
 .moment time {
   color: var(--blue);
   font-weight: 800;

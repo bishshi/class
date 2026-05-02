@@ -49,15 +49,25 @@ const previewPeople = people.slice(0, 6);
 
         <div class="timeline">
           {
-            previewTimeline.map((moment) => (
-              <article class="moment">
-                <time>{moment.date}</time>
-                <div>
-                  <h3>{moment.title}</h3>
-                  <p>{moment.text}</p>
-                </div>
-              </article>
-            ))
+            previewTimeline.map((moment) =>
+              moment.href ? (
+                <a class="moment moment-link" href={moment.href}>
+                  <time>{moment.date}</time>
+                  <div>
+                    <h3>{moment.title}</h3>
+                    <p>{moment.text}</p>
+                  </div>
+                </a>
+              ) : (
+                <article class="moment">
+                  <time>{moment.date}</time>
+                  <div>
+                    <h3>{moment.title}</h3>
+                    <p>{moment.text}</p>
+                  </div>
+                </article>
+              )
+            )
           }
         </div>
 
