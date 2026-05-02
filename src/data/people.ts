@@ -20,5 +20,22 @@ export const people = [
     messageToClass: "希望下次见面时，我们还能像以前一样很快聊起来。",
     favoriteMemory: "晚自习后一起走出教学楼，风吹过来的那几分钟。",
     contact: "可填写微信、邮箱或留空"
+  },
+  {
+    slug: "biss",
+    initial: "BI",
+    name: "毕爽爽",
+    photo: "",
+    location: "山西高平",
+    school: "山东理工大学",
+    direction: "测绘工程",
+    keywords: ["开心"],
+    text: "迷茫",
+    currentStatus: "还好还好",
+    highlight: "似乎没有什么值得开心的",
+    toPastSelf: "没什么",
+    messageToClass: "没什么",
+    favoriteMemory: "all",
+    contact: ""
   }
 ];
