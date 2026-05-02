@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { galleryIntro, photos } from "../data/photos";
+import { galleryIntro, photoTopics } from "../data/photos";
 import { site } from "../data/site";
 ---
 
@@ -19,16 +19,17 @@ import { site } from "../data/site";
       <div class="section-inner">
         <div class="photo-grid page-grid">
           {
-            photos.map((photo) => (
-              <article
-                class="photo-card"
-                style={photo.image ? `--photo-image: url("${photo.image}")` : ""}
+            photoTopics.map((topic) => (
+              <a
+                class="photo-card topic-card"
+                href={`/gallery/${topic.slug}/`}
+                style={topic.cover ? `--photo-image: url("${topic.cover}")` : ""}
               >
                 <div>
-                  <strong>{photo.title}</strong>
-                  <span>{photo.text}</span>
+                  <strong>{topic.title}</strong>
+                  <span>{topic.text}</span>
                 </div>
-              </article>
+              </a>
             ))
           }
         </div>

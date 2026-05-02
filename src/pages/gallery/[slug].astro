@@ -1,0 +1,50 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { galleryIntro, photoTopics } from "../../data/photos";
+import { site } from "../../data/site";
+
+export function getStaticPaths() {
+  return photoTopics.map((topic) => ({
+    params: { slug: topic.slug },
+    props: { topic }
+  }));
+}
+
+const { topic } = Astro.props;
+---
+
+<BaseLayout title={`${topic.title} · ${galleryIntro.title} · ${site.className}`}>
+  <main class="page-main">
+    <section class="page-hero">
+      <div class="section-inner">
+        <a class="back-link" href="/gallery/">返回照片墙</a>
+        <p class="eyebrow">Photo Topic</p>
+        <h1>{topic.title}</h1>
+        <p>{topic.text}</p>
+      </div>
+    </section>
+
+    <section class="gallery-band scrapbook-section">
+      <div class="section-inner">
+        <div class="scrapbook">
+          {
+            topic.photos.map((photo) => (
+              <article
+                class="scrap-photo"
+                style={photo.image ? `--scrap-image: url("${photo.image}")` : ""}
+              >
+                <div class="scrap-frame">
+                  <div class="scrap-image" aria-hidden="true"></div>
+                  <div class="scrap-copy">
+                    <strong>{photo.title}</strong>
+                    <span>{photo.caption}</span>
+                  </div>
+                </div>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

@@ -1,13 +1,13 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { galleryIntro, photos } from "../data/photos";
+import { galleryIntro, photoTopics } from "../data/photos";
 import { featuredMessage, messages, messagesIntro } from "../data/messages";
 import { people, peopleIntro } from "../data/people";
 import { site, stats } from "../data/site";
 import { timeline, timelineIntro } from "../data/timeline";
 
 const previewTimeline = timeline.slice(0, 4);
-const previewPhotos = photos.slice(0, 4);
+const previewPhotoTopics = photoTopics.slice(0, 4);
 const previewPeople = people.slice(0, 6);
 ---
 
@@ -74,16 +74,17 @@ const previewPeople = people.slice(0, 6);
 
         <div class="photo-grid">
           {
-            previewPhotos.map((photo) => (
-              <article
-                class="photo-card"
-                style={photo.image ? `--photo-image: url("${photo.image}")` : ""}
+            previewPhotoTopics.map((topic) => (
+              <a
+                class="photo-card topic-card"
+                href={`/gallery/${topic.slug}/`}
+                style={topic.cover ? `--photo-image: url("${topic.cover}")` : ""}
               >
                 <div>
-                  <strong>{photo.title}</strong>
-                  <span>{photo.text}</span>
+                  <strong>{topic.title}</strong>
+                  <span>{topic.text}</span>
                 </div>
-              </article>
+              </a>
             ))
           }
         </div>
