@@ -1,0 +1,88 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { people, peopleIntro } from "../../data/people";
+import { site } from "../../data/site";
+
+export function getStaticPaths() {
+  return people.map((person) => ({
+    params: { slug: person.slug },
+    props: { person }
+  }));
+}
+
+const { person } = Astro.props;
+---
+
+<BaseLayout title={`${person.name} · ${peopleIntro.title} · ${site.className}`}>
+  <main class="page-main">
+    <section class="page-hero person-hero">
+      <div class="section-inner person-hero-inner">
+        <div>
+          <a class="back-link" href="/people/">返回同学列表</a>
+          <p class="eyebrow">Classmate Profile</p>
+          <h1>{person.name}</h1>
+          <p>{person.text}</p>
+        </div>
+        <aside class="profile-card">
+          <div class="avatar profile-avatar">{person.initial}</div>
+          <dl>
+            <div>
+              <dt>所在城市</dt>
+              <dd>{person.location}</dd>
+            </div>
+            <div>
+              <dt>学校</dt>
+              <dd>{person.school}</dd>
+            </div>
+            <div>
+              <dt>方向</dt>
+              <dd>{person.direction}</dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-inner detail-grid">
+        <article class="detail-panel wide">
+          <p class="eyebrow">Now</p>
+          <h2>这一年的近况</h2>
+          <p>{person.currentStatus}</p>
+        </article>
+
+        <article class="detail-panel">
+          <p class="eyebrow">Keywords</p>
+          <h2>三个关键词</h2>
+          <div class="keyword-row large">
+            {person.keywords.map((keyword) => <span>{keyword}</span>)}
+          </div>
+        </article>
+
+        <article class="detail-panel">
+          <p class="eyebrow">Highlight</p>
+          <h2>这一年的小事</h2>
+          <p>{person.highlight}</p>
+        </article>
+
+        <article class="detail-panel">
+          <p class="eyebrow">Past Self</p>
+          <h2>想对高中时的自己说</h2>
+          <p>{person.toPastSelf}</p>
+        </article>
+
+        <article class="detail-panel">
+          <p class="eyebrow">Memory</p>
+          <h2>最想带走的高中瞬间</h2>
+          <p>{person.favoriteMemory}</p>
+        </article>
+
+        <article class="detail-panel wide">
+          <p class="eyebrow">To Class</p>
+          <h2>想对大家说</h2>
+          <p>{person.messageToClass}</p>
+        </article>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

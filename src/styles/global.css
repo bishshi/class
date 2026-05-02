@@ -222,8 +222,13 @@ h2 {
   box-shadow: 0 8px 28px rgba(39, 55, 52, 0.06);
 }
 
+.moment > div {
+  grid-column: 2;
+}
+
 .moment-link {
   position: relative;
+  padding-right: 70px;
   transition:
     border-color 180ms ease,
     box-shadow 180ms ease,
@@ -232,10 +237,9 @@ h2 {
 
 .moment-link::after {
   content: "查看";
-  align-self: start;
-  justify-self: end;
-  grid-column: 2;
-  grid-row: 1;
+  position: absolute;
+  top: 24px;
+  right: 24px;
   color: var(--green);
   font-size: 13px;
   font-weight: 800;
@@ -504,6 +508,41 @@ h2 {
   background: #fff;
 }
 
+.person-link {
+  display: block;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.person-link:hover {
+  transform: translateY(-3px);
+  border-color: rgba(55, 109, 90, 0.34);
+  box-shadow: 0 16px 38px rgba(39, 55, 52, 0.12);
+}
+
+.person-meta,
+.keyword-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.person-meta span,
+.keyword-row span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: var(--green);
+  background: color-mix(in srgb, var(--green), white 88%);
+  font-size: 13px;
+  font-weight: 800;
+}
+
 .avatar {
   width: 54px;
   height: 54px;
@@ -522,6 +561,97 @@ h2 {
 .person:nth-child(4) { --accent: #7b6b3a; }
 .person:nth-child(5) { --accent: #4d796d; }
 .person:nth-child(6) { --accent: #755c86; }
+.person:nth-child(7) { --accent: #8b5f4d; }
+.person:nth-child(8) { --accent: #2f6f79; }
+
+.person-hero-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  gap: clamp(28px, 5vw, 70px);
+  align-items: end;
+}
+
+.profile-card {
+  padding: 24px;
+  border: 1px solid rgba(255, 253, 247, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 253, 247, 0.1);
+  backdrop-filter: blur(12px);
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 22px;
+  background: #f1c979;
+  color: #21312d;
+  font-size: 24px;
+}
+
+.profile-card dl {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+
+.profile-card div {
+  display: grid;
+  gap: 2px;
+}
+
+.profile-card dt {
+  color: rgba(255, 253, 247, 0.58);
+  font-size: 13px;
+}
+
+.profile-card dd {
+  margin: 0;
+  color: #fffdf7;
+  font-weight: 800;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.detail-panel {
+  min-height: 220px;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 28px rgba(39, 55, 52, 0.06);
+}
+
+.detail-panel.wide {
+  grid-column: 1 / -1;
+}
+
+.detail-panel .eyebrow {
+  color: var(--blue);
+}
+
+.detail-panel h2 {
+  margin-bottom: 16px;
+  font-size: clamp(24px, 3vw, 34px);
+}
+
+.detail-panel p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.keyword-row.large {
+  margin: 0;
+}
+
+.keyword-row.large span {
+  min-height: 40px;
+  padding: 7px 14px;
+  font-size: 15px;
+}
 
 .message-wall {
   display: grid;
@@ -605,7 +735,9 @@ footer {
 
   .stats,
   .section-title,
-  .message-wall {
+  .message-wall,
+  .person-hero-inner,
+  .detail-grid {
     grid-template-columns: 1fr;
   }
 
@@ -626,6 +758,21 @@ footer {
 
   .moment {
     grid-template-columns: 1fr;
+  }
+
+  .moment > div {
+    grid-column: auto;
+  }
+
+  .moment-link {
+    padding-right: 22px;
+  }
+
+  .moment-link::after {
+    position: static;
+    margin-top: 10px;
+    grid-column: auto;
+    justify-self: start;
   }
 }
 

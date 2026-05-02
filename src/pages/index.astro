@@ -113,13 +113,17 @@ const previewPeople = people.slice(0, 6);
         <div class="people-grid">
           {
             previewPeople.map((person) => (
-              <article class="person">
+              <a class="person person-link" href={`/people/${person.slug}/`}>
                 <div class="avatar">{person.initial}</div>
                 <h3>
                   {person.name} · {person.location}
                 </h3>
+                <div class="person-meta">
+                  <span>{person.school}</span>
+                  <span>{person.direction}</span>
+                </div>
                 <p>{person.text}</p>
-              </article>
+              </a>
             ))
           }
         </div>
