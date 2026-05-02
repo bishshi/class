@@ -1,0 +1,119 @@
+name: 更新「如今的我们」
+description: 新增或修改一位同学在「如今的我们」中的资料
+title: "people: "
+labels:
+  - people-update
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提交后，自动化会用 `slug` 作为唯一标识更新 `src/data/people.ts`。
+        如果这个 `slug` 不存在，会新增一条同学资料；如果已经存在，会修改对应资料。
+        可选字段留空时，修改已有资料会保留原值，新增资料会写为空字符串。
+  - type: input
+    id: slug
+    attributes:
+      label: slug
+      description: URL 中使用的唯一标识，只建议使用小写字母、数字和短横线。
+      placeholder: student-a
+    validations:
+      required: true
+  - type: input
+    id: initial
+    attributes:
+      label: initial
+      description: 卡片照片占位时显示的字母或简称。
+      placeholder: A
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: name
+      placeholder: 同学 A
+    validations:
+      required: true
+  - type: input
+    id: photo
+    attributes:
+      label: photo
+      description: 近照路径，例如 /photos/student-a.jpg；可以先留空。
+      placeholder: /photos/student-a.jpg
+  - type: input
+    id: location
+    attributes:
+      label: location
+      placeholder: 北京
+    validations:
+      required: true
+  - type: input
+    id: school
+    attributes:
+      label: school
+      placeholder: 示例大学
+    validations:
+      required: true
+  - type: input
+    id: direction
+    attributes:
+      label: direction
+      placeholder: 计算机科学
+    validations:
+      required: true
+  - type: input
+    id: keywords
+    attributes:
+      label: keywords
+      description: 用中文逗号、英文逗号或顿号分隔。
+      placeholder: 开始、独立、想念
+    validations:
+      required: true
+  - type: textarea
+    id: text
+    attributes:
+      label: text
+      description: 卡片上的一句近况。
+      placeholder: 这一年的关键词：开始、独立、想念。
+    validations:
+      required: true
+  - type: textarea
+    id: currentStatus
+    attributes:
+      label: currentStatus
+      description: 个人页「近况」内容。
+    validations:
+      required: true
+  - type: textarea
+    id: highlight
+    attributes:
+      label: highlight
+      description: 个人页「这一年的小事」内容。
+    validations:
+      required: true
+  - type: textarea
+    id: toPastSelf
+    attributes:
+      label: toPastSelf
+      description: 个人页「想对高中时的自己说」内容。
+    validations:
+      required: true
+  - type: textarea
+    id: messageToClass
+    attributes:
+      label: messageToClass
+      description: 个人页「想对大家说」内容。
+    validations:
+      required: true
+  - type: textarea
+    id: favoriteMemory
+    attributes:
+      label: favoriteMemory
+      description: 个人页「最想带走的高中瞬间」内容。
+    validations:
+      required: true
+  - type: input
+    id: contact
+    attributes:
+      label: contact
+      description: 微信、邮箱或其他联系方式；可以留空。
+      placeholder: 可填写微信、邮箱或留空

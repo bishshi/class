@@ -1,0 +1,49 @@
+name: Update People Data
+
+on:
+  issues:
+    types:
+      - opened
+      - edited
+      - labeled
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  update-people:
+    if: contains(github.event.issue.labels.*.name, 'people-update') || startsWith(github.event.issue.title, 'people:')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Update src/data/people.ts
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        run: node scripts/update-people-from-issue.mjs
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update people data from issue #${{ github.event.issue.number }}"
+          file_pattern: src/data/people.ts
+
+      - name: Comment on issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: "已根据这个 issue 更新 `src/data/people.ts`。如果内容需要再调整，直接编辑 issue 表单即可再次触发。"
+            });
