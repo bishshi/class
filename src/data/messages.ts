@@ -5,7 +5,7 @@ export const messagesIntro = {
 
 export const featuredMessage = {
   text: "后来我们去了不同的地方，但那间教室像一个坐标，提醒我们曾经一起出发。",
-  author: "写给高三 X 班"
+  author: "写给612班"
 };
 
 export const messages = [
