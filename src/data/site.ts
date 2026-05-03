@@ -8,6 +8,25 @@ export const site = {
   footer: "高三 X 班毕业一周年纪念网站 · 初版"
 };
 
+export const contactLinks = [
+  {
+    label: "邮箱",
+    href: "mailto:hello@example.com",
+    icon: "fa-solid fa-envelope"
+  },
+  {
+    label: "GitHub",
+    href: "https://github.com/yourname",
+    icon: "fa-brands fa-github"
+  },
+  {
+    label: "微信公众号",
+    href: "#",
+    icon: "fa-brands fa-weixin",
+    qrImage: "/assets/wechat-qr.png"
+  }
+];
+
 export const navItems = [
   { label: "首页", href: "/" },
   { label: "三年时间线", href: "/timeline/" },
