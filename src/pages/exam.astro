@@ -1,0 +1,781 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { examIntro, examMath, examScoring, examText } from "../data/exam";
+import { site } from "../data/site";
+
+const lines = examText
+  .trim()
+  .split("\n")
+  .map((line) => line.trim())
+  .filter(Boolean);
+
+const isSectionLine = (line: string) =>
+  /^(一、|二、|三、|四、|五、|六、|Ⅶ\.)/.test(line);
+
+const imagePattern = /^\[image:(.+?):(.+?)\]$/;
+const galleryPattern = /^\[gallery:(.+)\]$/;
+const questionPattern = /^\[q\](.+)$/;
+const mathPattern = /\[math:([\w-]+)\]/g;
+const optionPattern = /^[A-D]\./;
+
+const renderLine = (line: string) =>
+  line.replace(mathPattern, (_, id: string) => examMath[id] ?? "");
+
+const getOptions = (line: string) => {
+  if (!optionPattern.test(line)) {
+    return [];
+  }
+
+  return line.match(/[A-D]\.\s*.*?(?=\s*[A-D]\.|$)/g) ?? [];
+};
+
+const getOptionValue = (option: string) => option.match(/^([A-D])\./)?.[1] ?? "";
+const fillQuestionMap = new Map(examScoring.fillQuestions.map((question) => [question.number, question]));
+const circledNumbers = ["①", "②", "③", "④", "⑤"];
+
+const renderQuestion13Line = (line: string) =>
+  line.replace(/([①②③④⑤])▲/g, (_, marker: string) => {
+    const blankIndex = circledNumbers.indexOf(marker);
+
+    return `${marker}<input class="inline-fill-input" data-fill-answer data-question-number="13" data-blank-index="${blankIndex}" aria-label="第 13 题第 ${blankIndex + 1} 空" />`;
+  });
+
+const objectiveMax =
+  examScoring.choiceQuestions.reduce((sum, question) => sum + question.points, 0) +
+  examScoring.fillQuestions
+    .filter((question) => question.mode !== "unordered-names")
+    .reduce((sum, question) => sum + question.points, 0) +
+  examScoring.choiceBonus.points;
+const nameQuestionMax =
+  examScoring.fillQuestions.find((question) => question.mode === "unordered-names")?.points ?? 0;
+const manualMax = examScoring.manualQuestions.reduce((sum, question) => sum + question.points, 0);
+const totalMax = objectiveMax + nameQuestionMax + manualMax;
+const admissionNumberLength = 9;
+const answerCardQuestions = [
+  ...examScoring.choiceQuestions.map((question) => ({ ...question, kind: "choice" })),
+  ...examScoring.fillQuestions.map((question) => ({ ...question, kind: "fill" })),
+  ...examScoring.manualQuestions.map((question) => ({ ...question, kind: "manual" }))
+].sort((left, right) => left.number - right.number);
+
+let questionNumber = 0;
+---
+
+<BaseLayout title={`${examIntro.title} · ${site.className}`}>
+  <main class="page-main exam-page">
+    <section class="page-hero">
+      <div class="section-inner">
+        <a class="back-link" href="/">返回首页</a>
+        <p class="eyebrow">{examIntro.eyebrow}</p>
+        <h1>{examIntro.title}</h1>
+        <p>{examIntro.description}</p>
+        <div class="hero-actions">
+          <a class="button primary" href={examIntro.downloadHref} download>下载原卷</a>
+          <a class="button" href="#paper">阅读试卷</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="exam-band" id="paper">
+      <div class="section-inner">
+        <div class="exam-workspace">
+          <article class="exam-paper" aria-label="试卷正文">
+            {
+              lines.map((line, index) => {
+                const image = line.match(imagePattern);
+                const gallery = line.match(galleryPattern);
+                const question = line.match(questionPattern);
+                const options = getOptions(line);
+
+                if (image) {
+                  return (
+                    <figure class="exam-figure">
+                      <img src={image[1]} alt={image[2]} loading="lazy" />
+                      <figcaption>{image[2]}</figcaption>
+                    </figure>
+                  );
+                }
+
+                if (gallery) {
+                  const images = gallery[1].split(",");
+
+                  return (
+                    <div class="exam-image-grid" aria-label="图片标题题配图">
+                      {images.map((src, imageIndex) => (
+                        <figure>
+                          <img src={src} alt={`图片标题题配图 ${imageIndex + 1}`} loading="lazy" />
+                          <figcaption>图 {imageIndex + 1}</figcaption>
+                          {
+                            questionNumber === 15 && (
+                              <label class="image-title-answer">
+                                <span>标题</span>
+                                <input
+                                  data-fill-answer
+                                  data-question-number="15"
+                                  data-blank-index={imageIndex}
+                                  aria-label={`第 15 题图 ${imageIndex + 1} 标题`}
+                                />
+                              </label>
+                            )
+                          }
+                        </figure>
+                      ))}
+                    </div>
+                  );
+                }
+
+                if (question) {
+                  questionNumber += 1;
+                  const currentQuestionNumber = questionNumber;
+                  const fillQuestion = fillQuestionMap.get(currentQuestionNumber);
+
+                  return (
+                    <div
+                      class="exam-question-block"
+                      id={`question-${currentQuestionNumber}`}
+                      data-question-block
+                      data-question-number={currentQuestionNumber}
+                    >
+                      <p class="exam-question">
+                        <span class="exam-question-number">{currentQuestionNumber}</span>
+                        <span class="exam-question-text" set:html={renderLine(question[1])} />
+                      </p>
+                      {
+                        fillQuestion?.mode === "unordered-names" ? (
+                          <div class="name-fill-grid" aria-label="第 14 题姓名默写作答">
+                            {Array.from({ length: fillQuestion.blankCount }, (_, blankIndex) => (
+                              <label>
+                                <span>{blankIndex + 1}</span>
+                                <input
+                                  data-fill-answer
+                                  data-question-number={currentQuestionNumber}
+                                  data-blank-index={blankIndex}
+                                  aria-label={`第 ${currentQuestionNumber} 题第 ${blankIndex + 1} 个姓名`}
+                                />
+                              </label>
+                            ))}
+                          </div>
+                        ) : null
+                      }
+                    </div>
+                  );
+                }
+
+                if (options.length > 0) {
+                  return (
+                    <div class="exam-options" aria-label="选项">
+                      {options.map((option) => (
+                        <button
+                          class="exam-option"
+                          type="button"
+                          data-select-option
+                          data-question-number={questionNumber}
+                          data-option-value={getOptionValue(option)}
+                          set:html={renderLine(option)}
+                        />
+                      ))}
+                    </div>
+                  );
+                }
+
+                if (index === 0) {
+                  return (
+                    <div class="exam-candidate-info" aria-label="考生信息">
+                      <label>
+                        <span>姓名</span>
+                        <input id="candidate-name" autocomplete="name" />
+                      </label>
+                      <label>
+                        <span>准考证号</span>
+                        <input
+                          id="admission-number"
+                          inputmode="numeric"
+                          maxlength={admissionNumberLength}
+                          pattern={`\\d{${admissionNumberLength}}`}
+                          placeholder={"#".repeat(admissionNumberLength)}
+                        />
+                      </label>
+                      <label>
+                        <span>座位号</span>
+                        <input id="seat-number" inputmode="numeric" maxlength="2" readonly placeholder="末两位" />
+                      </label>
+                    </div>
+                  );
+                }
+
+                if (index < 3) {
+                  return (
+                    <p
+                      class:list={["exam-title-line", index === 1 && "major"]}
+                      set:html={renderLine(line)}
+                    />
+                  );
+                }
+
+                if (isSectionLine(line)) {
+                  return <h2>{line}</h2>;
+                }
+
+                if (line === "注意事项：" || line === "注释：") {
+                  return <h3>{line}</h3>;
+                }
+
+                if (questionNumber === 13 && line.includes("▲")) {
+                  return <p class="fill-inline-text" set:html={renderQuestion13Line(line)} />;
+                }
+
+                return <p set:html={renderLine(line)} />;
+              })
+            }
+          </article>
+
+          <aside class="score-sidebar" id="scorer" aria-label="答题卡">
+            <form class="score-panel" id="exam-scorer">
+              <div class="score-sidebar-head">
+                <p class="eyebrow">Answer Sheet</p>
+                <h2>答题卡</h2>
+                <p>题号颜色会提示是否作答，点击题号可跳到对应题目。</p>
+              </div>
+
+              <section class="score-group answer-card-profile" aria-label="考生信息">
+                <dl>
+                  <div>
+                    <dt>姓名</dt>
+                    <dd id="card-candidate-name">未填写</dd>
+                  </div>
+                  <div>
+                    <dt>准考证号</dt>
+                    <dd id="card-admission-number">未填写</dd>
+                  </div>
+                  <div>
+                    <dt>座位号</dt>
+                    <dd id="card-seat-number">未填写</dd>
+                  </div>
+                </dl>
+              </section>
+
+              <section class="score-group" aria-labelledby="answer-nav-title">
+                <h3 id="answer-nav-title">题号</h3>
+                <div class="answer-card-grid">
+                  {
+                    answerCardQuestions.map((question) => (
+                      <button
+                        class="answer-card-number"
+                        type="button"
+                        data-answer-jump
+                        data-kind={question.kind}
+                        data-question-number={question.number}
+                        aria-label={`跳到第 ${question.number} 题`}
+                      >
+                        {question.number}
+                      </button>
+                    ))
+                  }
+                </div>
+                <div class="answer-card-legend" aria-label="答题状态说明">
+                  <span><i class="is-unanswered"></i>未答</span>
+                  <span><i class="is-answered"></i>已答</span>
+                  <span><i class="is-manual"></i>手评</span>
+                </div>
+              </section>
+
+              <section class="score-group" aria-labelledby="manual-score-title">
+                <h3 id="manual-score-title">主观题</h3>
+                <div class="manual-score-grid">
+                  {
+                    examScoring.manualQuestions.map((question) => (
+                      <label class="manual-score-item">
+                        <span>{question.number} 题</span>
+                        <input
+                          data-manual-score
+                          data-points={question.points}
+                          type="number"
+                          min="0"
+                          max={question.points}
+                          step="0.5"
+                          value="0"
+                        />
+                        <small>/ {question.points}</small>
+                      </label>
+                    ))
+                  }
+                </div>
+              </section>
+
+              <button class="score-submit" type="submit">提交</button>
+
+              <div class="score-total" aria-live="polite">
+                <div>
+                  <span>客观题</span>
+                  <strong><output id="objective-score">0</output><small> / {objectiveMax}</small></strong>
+                </div>
+                <div>
+                  <span>姓名题</span>
+                  <strong><output id="name-score">0</output><small> / {nameQuestionMax}</small></strong>
+                </div>
+                <div>
+                  <span>主观题</span>
+                  <strong><output id="manual-score">0</output><small> / {manualMax}</small></strong>
+                </div>
+                <div class="score-total-final">
+                  <span>总分</span>
+                  <strong><output id="total-score">0</output><small> / {totalMax}</small></strong>
+                </div>
+              </div>
+              <p class="score-total-note">14 题为姓名题，单独计算得分；罚分只从姓名题和总分中体现，不计入客观题。</p>
+            </form>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script is:inline>
+    window.MathJax = {
+      startup: {
+        typeset: true
+      },
+      chtml: {
+        matchFontHeight: false
+      }
+    };
+  </script>
+  <script
+    is:inline
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/mml-chtml.js"
+    defer
+  ></script>
+  <script
+    is:inline
+    define:vars={{
+      choiceBonus: examScoring.choiceBonus,
+      choiceQuestions: examScoring.choiceQuestions,
+      fillQuestions: examScoring.fillQuestions,
+      objectiveMax,
+      nameQuestionMax,
+      manualMax,
+      totalMax
+    }}
+  >
+    const scorer = document.querySelector("#exam-scorer");
+    const candidateName = document.querySelector("#candidate-name");
+    const admissionNumber = document.querySelector("#admission-number");
+    const seatNumber = document.querySelector("#seat-number");
+    const cardCandidateName = document.querySelector("#card-candidate-name");
+    const cardAdmissionNumber = document.querySelector("#card-admission-number");
+    const cardSeatNumber = document.querySelector("#card-seat-number");
+    const draftStorageKey = "examDraft";
+
+    const normalizeAnswer = (value) =>
+      String(value || "")
+        .trim()
+        .replace(/\s+/g, "")
+        .toLowerCase();
+
+    const getAcceptedAnswers = (answer) =>
+      (Array.isArray(answer) ? answer : String(answer || "").split("|"))
+        .map(normalizeAnswer)
+        .filter(Boolean);
+
+    const clampScore = (value, max) => {
+      const score = Number(value);
+
+      if (!Number.isFinite(score)) {
+        return 0;
+      }
+
+      return Math.min(Math.max(score, 0), max);
+    };
+
+    const getDraft = () => ({
+      candidate: {
+        name: candidateName?.value ?? "",
+        admissionNumber: admissionNumber?.value ?? "",
+        seatNumber: seatNumber?.value ?? ""
+      },
+      choices: Object.fromEntries(
+        [...document.querySelectorAll("[data-select-option].is-selected")].map((option) => [
+          option.dataset.questionNumber,
+          option.dataset.optionValue
+        ])
+      ),
+      fills: Object.fromEntries(
+        [...document.querySelectorAll("[data-fill-answer]")].map((input) => [
+          `${input.dataset.questionNumber}-${input.dataset.blankIndex || 0}`,
+          input.value
+        ])
+      ),
+      manualScores: Object.fromEntries(
+        [...document.querySelectorAll("[data-manual-score]")].map((input) => {
+          const label = input.closest(".manual-score-item");
+          const numberText = label?.querySelector("span")?.textContent ?? "";
+          const questionNumber = Number(numberText.match(/\d+/)?.[0] ?? 0);
+
+          return [questionNumber, input.value];
+        })
+      )
+    });
+
+    const saveDraft = () => {
+      localStorage.setItem(draftStorageKey, JSON.stringify(getDraft()));
+    };
+
+    const restoreDraft = () => {
+      const draft = JSON.parse(localStorage.getItem(draftStorageKey) || "null");
+
+      if (!draft) {
+        return;
+      }
+
+      if (candidateName) {
+        candidateName.value = draft.candidate?.name || "";
+      }
+
+      if (admissionNumber) {
+        admissionNumber.value = draft.candidate?.admissionNumber || "";
+      }
+
+      if (seatNumber) {
+        seatNumber.value = draft.candidate?.seatNumber || admissionNumber?.value.slice(-2) || "";
+      }
+
+      Object.entries(draft.choices || {}).forEach(([questionNumber, optionValue]) => {
+        const option = document.querySelector(
+          `[data-select-option][data-question-number="${questionNumber}"][data-option-value="${optionValue}"]`
+        );
+
+        option?.classList.add("is-selected");
+      });
+
+      Object.entries(draft.fills || {}).forEach(([key, value]) => {
+        const [questionNumber, blankIndex] = key.split("-");
+        const input = document.querySelector(
+          `[data-fill-answer][data-question-number="${questionNumber}"][data-blank-index="${blankIndex}"]`
+        );
+
+        if (input) {
+          input.value = value;
+        }
+      });
+
+      document.querySelectorAll("[data-manual-score]").forEach((input) => {
+        const label = input.closest(".manual-score-item");
+        const numberText = label?.querySelector("span")?.textContent ?? "";
+        const questionNumber = Number(numberText.match(/\d+/)?.[0] ?? 0);
+
+        if (draft.manualScores?.[questionNumber] != null) {
+          input.value = draft.manualScores[questionNumber];
+        }
+      });
+    };
+
+    const syncSelectedOption = (questionNumber, userAnswer) => {
+      document
+        .querySelectorAll(`[data-select-option][data-question-number="${questionNumber}"]`)
+        .forEach((option) =>
+          option.classList.toggle(
+            "is-selected",
+            Boolean(userAnswer) && option.dataset.optionValue === userAnswer
+          )
+        );
+    };
+
+    const syncCandidateInfo = () => {
+      if (cardCandidateName) {
+        cardCandidateName.textContent = candidateName?.value.trim() || "未填写";
+      }
+
+      if (cardAdmissionNumber) {
+        cardAdmissionNumber.textContent = admissionNumber?.value.trim() || "未填写";
+      }
+
+      if (cardSeatNumber) {
+        cardSeatNumber.textContent = seatNumber?.value.trim() || "未填写";
+      }
+    };
+
+    const setAnswerCardState = (questionNumber, isAnswered) => {
+      const cardNumber = document.querySelector(
+        `[data-answer-jump][data-question-number="${questionNumber}"]`
+      );
+
+      cardNumber?.classList.toggle("is-answered", Boolean(isAnswered));
+    };
+
+    const updateAnswerCardStates = () => {
+      choiceQuestions.forEach((question) => {
+        const selectedOption = document.querySelector(
+          `[data-select-option][data-question-number="${question.number}"].is-selected`
+        );
+
+        setAnswerCardState(question.number, Boolean(selectedOption));
+      });
+
+      fillQuestions.forEach((question) => {
+        const inputs = [...document.querySelectorAll(`[data-fill-answer][data-question-number="${question.number}"]`)];
+
+        setAnswerCardState(question.number, inputs.some((input) => input.value.trim()));
+      });
+
+      scorer?.querySelectorAll("[data-manual-score]").forEach((input) => {
+        const label = input.closest(".manual-score-item");
+        const numberText = label?.querySelector("span")?.textContent ?? "";
+        const questionNumber = Number(numberText.match(/\d+/)?.[0] ?? 0);
+
+        if (questionNumber) {
+          setAnswerCardState(questionNumber, Number(input.value) > 0);
+        }
+      });
+    };
+
+    const updateScores = () => {
+      if (!scorer) {
+        return null;
+      }
+
+      let objectiveScore = 0;
+      let manualScore = 0;
+      let choiceScore = 0;
+      let fillScore = 0;
+      let choiceAnswered = 0;
+      let fillAnswered = 0;
+      let manualAnswered = 0;
+      let namePenalty = 0;
+      let nameScore = 0;
+      let rawTotal = 0;
+      const correctChoiceNumbers = new Set();
+
+      choiceQuestions.forEach((question) => {
+        const selectedOption = document.querySelector(
+          `[data-select-option][data-question-number="${question.number}"].is-selected`
+        );
+        const userAnswer = selectedOption?.dataset.optionValue ?? "";
+
+        if (userAnswer) {
+          choiceAnswered += 1;
+        }
+
+        if (question.freebie && userAnswer) {
+          objectiveScore += question.points;
+          choiceScore += question.points;
+          correctChoiceNumbers.add(question.number);
+          return;
+        }
+
+        if (question.answer && userAnswer === question.answer) {
+          objectiveScore += question.points;
+          choiceScore += question.points;
+          correctChoiceNumbers.add(question.number);
+        }
+      });
+
+      fillQuestions.forEach((question) => {
+        const inputs = [...document.querySelectorAll(`[data-fill-answer][data-question-number="${question.number}"]`)]
+          .sort((left, right) => Number(left.dataset.blankIndex || 0) - Number(right.dataset.blankIndex || 0));
+        const answers = Array.isArray(question.answers) ? question.answers : [];
+
+        if (question.mode === "unordered-names") {
+          const standardNames = answers.map(normalizeAnswer).filter(Boolean);
+          const submittedNames = inputs.map((input) => normalizeAnswer(input.value)).filter(Boolean);
+
+          if (submittedNames.length > 0) {
+            fillAnswered += 1;
+          }
+
+          if (standardNames.length > 0) {
+            const standardSet = new Set(standardNames);
+            const submittedSet = new Set(submittedNames);
+            const correctCount = [...submittedSet].filter((name) => standardSet.has(name)).length;
+            const missingCount = Math.max(0, standardSet.size - correctCount);
+            const wrongCount = submittedNames.filter((name) => !standardSet.has(name)).length;
+            namePenalty = (missingCount + wrongCount) * (question.penaltyPerMistake ?? 1);
+            nameScore = question.points - namePenalty;
+          }
+
+          return;
+        }
+
+        let questionHasAnswer = false;
+
+        answers.forEach((answer, index) => {
+          const acceptedAnswers = getAcceptedAnswers(answer);
+          const normalizedUserAnswer = normalizeAnswer(inputs[index]?.value ?? "");
+          const blankPoints = question.blankPoints ?? question.points / Math.max(answers.length, 1);
+
+          if (normalizedUserAnswer) {
+            questionHasAnswer = true;
+          }
+
+          if (question.freebie && normalizedUserAnswer) {
+            objectiveScore += blankPoints;
+            fillScore += blankPoints;
+            return;
+          }
+
+          if (acceptedAnswers.length > 0 && acceptedAnswers.includes(normalizedUserAnswer)) {
+            objectiveScore += blankPoints;
+            fillScore += blankPoints;
+          }
+        });
+
+        if (questionHasAnswer) {
+          fillAnswered += 1;
+        }
+      });
+
+      const bonusApplies =
+        choiceBonus.appliesTo.length > 0 &&
+        choiceBonus.appliesTo.every((number) => correctChoiceNumbers.has(number));
+
+      if (bonusApplies) {
+        objectiveScore += choiceBonus.points;
+        choiceScore += choiceBonus.points;
+      }
+
+      scorer.querySelectorAll("[data-manual-score]").forEach((input) => {
+        const points = Number(input.dataset.points || 0);
+        const score = clampScore(input.value, points);
+
+        if (String(input.value) !== String(score)) {
+          input.value = String(score);
+        }
+
+        manualScore += score;
+
+        if (score > 0) {
+          manualAnswered += 1;
+        }
+      });
+
+      const objectiveOutput = document.querySelector("#objective-score");
+      const nameOutput = document.querySelector("#name-score");
+      const manualOutput = document.querySelector("#manual-score");
+      const totalOutput = document.querySelector("#total-score");
+      const subtotal = objectiveScore + nameScore + manualScore;
+      rawTotal = subtotal;
+      const displayTotal = Math.max(0, rawTotal);
+
+      if (objectiveOutput) {
+        objectiveOutput.value = objectiveScore;
+        objectiveOutput.textContent = objectiveScore;
+      }
+
+      if (nameOutput) {
+        nameOutput.value = nameScore;
+        nameOutput.textContent = nameScore;
+      }
+
+      if (manualOutput) {
+        manualOutput.value = manualScore;
+        manualOutput.textContent = manualScore;
+      }
+
+      if (totalOutput) {
+        totalOutput.value = displayTotal;
+        totalOutput.textContent = displayTotal;
+      }
+
+      return {
+        candidate: {
+          name: candidateName?.value.trim() || "未填写",
+          admissionNumber: admissionNumber?.value.trim() || "未填写",
+          seatNumber: seatNumber?.value.trim() || "未填写"
+        },
+        score: {
+          objective: objectiveScore,
+          name: nameScore,
+          manual: manualScore,
+          subtotal,
+          total: displayTotal,
+          rawTotal,
+          objectiveMax,
+          nameQuestionMax,
+          manualMax,
+          totalMax
+        },
+        breakdown: {
+          choiceScore,
+          fillScore,
+          choiceAnswered,
+          choiceTotal: choiceQuestions.length,
+          fillAnswered,
+          fillTotal: fillQuestions.length,
+          manualAnswered,
+          manualTotal: scorer.querySelectorAll("[data-manual-score]").length,
+          bonusApplied: bonusApplies,
+          namePenalty,
+          totalFloored: rawTotal < 0
+        },
+        submittedAt: new Date().toISOString()
+      };
+    };
+
+    scorer?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const result = updateScores();
+
+      if (result) {
+        sessionStorage.setItem("examResult", JSON.stringify(result));
+        window.location.href = "/exam/result/";
+      }
+    });
+    document.querySelectorAll("[data-select-option]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const questionNumber = button.dataset.questionNumber;
+        const optionValue = button.dataset.optionValue;
+
+        if (!questionNumber || !optionValue) {
+          return;
+        }
+
+        document
+          .querySelectorAll(`[data-select-option][data-question-number="${questionNumber}"]`)
+          .forEach((option) => option.classList.toggle("is-selected", option === button));
+        updateAnswerCardStates();
+        saveDraft();
+      });
+    });
+    document.querySelectorAll("[data-fill-answer]").forEach((input) => {
+      input.addEventListener("input", () => {
+        updateAnswerCardStates();
+        saveDraft();
+      });
+    });
+    scorer?.querySelectorAll("[data-manual-score]").forEach((input) => {
+      input.addEventListener("input", () => {
+        updateAnswerCardStates();
+        saveDraft();
+      });
+    });
+    document.querySelectorAll("[data-answer-jump]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const question = document.querySelector(`#question-${button.dataset.questionNumber}`);
+
+        question?.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      });
+    });
+    admissionNumber?.addEventListener("input", () => {
+      admissionNumber.value = admissionNumber.value.replace(/\D/g, "").slice(0, admissionNumber.maxLength);
+
+      if (seatNumber) {
+        seatNumber.value = admissionNumber.value.slice(-2);
+      }
+
+      syncCandidateInfo();
+      saveDraft();
+    });
+    candidateName?.addEventListener("input", () => {
+      syncCandidateInfo();
+      saveDraft();
+    });
+    seatNumber?.addEventListener("input", () => {
+      syncCandidateInfo();
+      saveDraft();
+    });
+    restoreDraft();
+    syncCandidateInfo();
+    updateAnswerCardStates();
+  </script>
+</BaseLayout>

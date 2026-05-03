@@ -1,0 +1,226 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { site } from "../../data/site";
+---
+
+<BaseLayout title={`成绩分析 · ${site.className}`}>
+  <main class="page-main">
+    <section class="page-hero result-hero">
+      <div class="section-inner">
+        <a class="back-link" href="/exam/">返回试卷</a>
+        <p class="eyebrow">Result</p>
+        <h1>成绩分析</h1>
+        <p>这里展示本次答题的得分、完成情况和可下载的分享图。</p>
+      </div>
+    </section>
+
+    <section class="result-band">
+      <div class="section-inner">
+        <article class="result-card" id="result-card">
+          <div class="result-empty" id="result-empty">
+            <h2>还没有成绩</h2>
+            <p>请先完成试卷并点击答题卡里的“提交”。</p>
+            <a class="section-link" href="/exam/">去答题</a>
+          </div>
+
+          <div class="result-content" id="result-content" hidden>
+            <div class="result-head">
+              <div>
+                <p class="eyebrow">综合素质检测模拟卷</p>
+                <h2 id="result-title">成绩单</h2>
+              </div>
+              <button class="score-submit" type="button" id="download-share">下载分享图</button>
+            </div>
+
+            <dl class="result-profile">
+              <div>
+                <dt>姓名</dt>
+                <dd id="result-name">未填写</dd>
+              </div>
+              <div>
+                <dt>准考证号</dt>
+                <dd id="result-admission">未填写</dd>
+              </div>
+              <div>
+                <dt>座位号</dt>
+                <dd id="result-seat">未填写</dd>
+              </div>
+            </dl>
+
+            <div class="result-score-grid">
+              <div class="result-total">
+                <span>总分</span>
+                <strong><output id="result-total">0</output></strong>
+                <small id="result-total-max">/ 260</small>
+              </div>
+              <div>
+                <span>客观题</span>
+                <strong><output id="result-objective">0</output></strong>
+                <small id="result-objective-max">/ 135</small>
+              </div>
+              <div>
+                <span>主观题</span>
+                <strong><output id="result-manual">0</output></strong>
+                <small id="result-manual-max">/ 125</small>
+              </div>
+              <div class="result-name-score">
+                <span>姓名题</span>
+                <strong><output id="result-name-score">0</output></strong>
+                <small id="result-name-score-max">/ 30</small>
+              </div>
+            </div>
+            <p class="result-score-note">14 题姓名题单独计算，分数可低于 0；客观题不包含该题分数。</p>
+
+            <div class="result-analysis">
+              <h2>完成情况</h2>
+              <div class="analysis-grid">
+                <p><strong id="choice-progress">0 / 0</strong><span>选择题作答</span></p>
+                <p><strong id="fill-progress">0 / 0</strong><span>填空题作答</span></p>
+                <p><strong id="manual-progress">0 / 0</strong><span>主观题给分</span></p>
+                <p><strong id="bonus-status">未获得</strong><span>选择题奖励</span></p>
+              </div>
+              <div class="penalty-note" id="penalty-note" hidden>
+                <strong>14 题罚分：<span id="name-penalty">0</span> 分</strong>
+                <span id="floor-note" hidden>原始总分为负，最终总分已按 0 分记录。</span>
+              </div>
+              <p class="result-comment" id="result-comment"></p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script is:inline>
+    const result = JSON.parse(sessionStorage.getItem("examResult") || "null");
+    const empty = document.querySelector("#result-empty");
+    const content = document.querySelector("#result-content");
+
+    const setText = (selector, value) => {
+      const element = document.querySelector(selector);
+
+      if (element) {
+        element.textContent = String(value);
+      }
+    };
+
+    const getComment = (score, max) => {
+      const ratio = max > 0 ? score / max : 0;
+
+      if (ratio >= 0.9) return "状态拉满，很有当年考场上那股稳劲。";
+      if (ratio >= 0.75) return "整体发挥不错，很多题都稳稳拿住了。";
+      if (ratio >= 0.6) return "完成度还可以，主观题和填空题还能继续捞分。";
+      return "这张卷子本来就带点纪念性质，答完就已经很有参与感。";
+    };
+
+    const drawShareImage = (data) => {
+      const canvas = document.createElement("canvas");
+      const scale = window.devicePixelRatio || 1;
+      const width = 960;
+      const height = 1280;
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+
+      const ctx = canvas.getContext("2d");
+      ctx.scale(scale, scale);
+      ctx.fillStyle = "#fffdf7";
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = "#24443a";
+      ctx.fillRect(0, 0, width, 240);
+      ctx.fillStyle = "#f3cf8b";
+      ctx.font = "700 28px Microsoft YaHei, sans-serif";
+      ctx.fillText("2024届612班", 72, 86);
+      ctx.fillStyle = "#fffdf7";
+      ctx.font = "800 54px Microsoft YaHei, sans-serif";
+      ctx.fillText("综合素质检测模拟卷", 72, 160);
+      ctx.font = "700 28px Microsoft YaHei, sans-serif";
+      ctx.fillText("成绩分析", 72, 208);
+
+      ctx.fillStyle = "#1f2b2a";
+      ctx.font = "700 30px Microsoft YaHei, sans-serif";
+      ctx.fillText(`姓名：${data.candidate.name}`, 72, 310);
+      ctx.fillText(`准考证号：${data.candidate.admissionNumber}`, 72, 360);
+      ctx.fillText(`座位号：${data.candidate.seatNumber}`, 72, 410);
+
+      ctx.fillStyle = "#376d5a";
+      ctx.font = "900 140px Microsoft YaHei, sans-serif";
+      ctx.fillText(String(data.score.total), 72, 610);
+      ctx.font = "800 38px Microsoft YaHei, sans-serif";
+      ctx.fillText(`/ ${data.score.totalMax}`, 340, 590);
+      ctx.fillStyle = "#62706f";
+      ctx.font = "700 28px Microsoft YaHei, sans-serif";
+      ctx.fillText(`客观题 ${data.score.objective} / ${data.score.objectiveMax}`, 72, 690);
+      ctx.fillText(`主观题 ${data.score.manual} / ${data.score.manualMax}`, 72, 740);
+      ctx.fillText(`姓名题 ${data.score.name ?? 0} / ${data.score.nameQuestionMax ?? 0}`, 72, 790);
+
+      ctx.fillStyle = "#f4f7ee";
+      ctx.fillRect(72, 820, 816, 230);
+      ctx.fillStyle = "#1f2b2a";
+      ctx.font = "800 30px Microsoft YaHei, sans-serif";
+      ctx.fillText("完成情况", 110, 880);
+      ctx.font = "700 24px Microsoft YaHei, sans-serif";
+      ctx.fillText(`选择题：${data.breakdown.choiceAnswered} / ${data.breakdown.choiceTotal}`, 110, 935);
+      ctx.fillText(`填空题：${data.breakdown.fillAnswered} / ${data.breakdown.fillTotal}`, 110, 985);
+      ctx.fillText(`主观题：${data.breakdown.manualAnswered} / ${data.breakdown.manualTotal}`, 500, 935);
+      ctx.fillText(`奖励分：${data.breakdown.bonusApplied ? "已获得" : "未获得"}`, 500, 985);
+
+      if (data.breakdown.namePenalty > 0 || data.breakdown.totalFloored) {
+        ctx.fillStyle = "#c96452";
+        ctx.font = "800 24px Microsoft YaHei, sans-serif";
+        ctx.fillText(`14题罚分：${data.breakdown.namePenalty || 0}分`, 110, 1035);
+
+        if (data.breakdown.totalFloored) {
+          ctx.fillText("原始总分为负，最终总分按0分记录", 500, 1035);
+        }
+      }
+
+      ctx.fillStyle = "#62706f";
+      ctx.font = "700 24px Microsoft YaHei, sans-serif";
+      ctx.fillText("青春是一本太仓促的书，但这张成绩单刚刚好。", 72, 1140);
+
+      const link = document.createElement("a");
+      link.download = `612-score-${Date.now()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    };
+
+    if (result) {
+      empty.hidden = true;
+      content.hidden = false;
+      setText("#result-title", `${result.candidate.name}的成绩单`);
+      setText("#result-name", result.candidate.name);
+      setText("#result-admission", result.candidate.admissionNumber);
+      setText("#result-seat", result.candidate.seatNumber);
+      setText("#result-total", result.score.total);
+      setText("#result-total-max", `/ ${result.score.totalMax}`);
+      setText("#result-objective", result.score.objective);
+      setText("#result-objective-max", `/ ${result.score.objectiveMax}`);
+      setText("#result-manual", result.score.manual);
+      setText("#result-manual-max", `/ ${result.score.manualMax}`);
+      setText("#result-name-score", result.score.name ?? 0);
+      setText("#result-name-score-max", `/ ${result.score.nameQuestionMax ?? 0}`);
+      setText("#choice-progress", `${result.breakdown.choiceAnswered} / ${result.breakdown.choiceTotal}`);
+      setText("#fill-progress", `${result.breakdown.fillAnswered} / ${result.breakdown.fillTotal}`);
+      setText("#manual-progress", `${result.breakdown.manualAnswered} / ${result.breakdown.manualTotal}`);
+      setText("#bonus-status", result.breakdown.bonusApplied ? "已获得" : "未获得");
+      setText("#result-comment", getComment(result.score.total, result.score.totalMax));
+
+      if (result.breakdown.namePenalty > 0 || result.breakdown.totalFloored) {
+        document.querySelector("#penalty-note").hidden = false;
+        setText("#name-penalty", result.breakdown.namePenalty || 0);
+
+        if (result.breakdown.totalFloored) {
+          document.querySelector("#floor-note").hidden = false;
+        }
+      }
+    }
+
+    document.querySelector("#download-share")?.addEventListener("click", () => {
+      if (result) {
+        drawShareImage(result);
+      }
+    });
+  </script>
+</BaseLayout>

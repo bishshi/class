@@ -32,6 +32,7 @@ export const navItems = [
   { label: "三年时间线", href: "/timeline/" },
   { label: "照片墙", href: "/gallery/" },
   { label: "如今的我们", href: "/people/" },
+  { label: "综合试卷", href: "/exam/" },
   { label: "留言墙", href: "/messages/" }
 ];
 
