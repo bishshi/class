@@ -15,6 +15,10 @@ const { title = site.title } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"
+    />
   </head>
   <body>
     <header class="site-header" aria-label="网站导航">
@@ -68,6 +72,16 @@ const { title = site.title } = Astro.props;
           }
         });
       }
+    </script>
+    <script
+      is:inline
+      src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"
+    ></script>
+    <script is:inline>
+      window.Fancybox?.bind("[data-fancybox]", {
+        animated: true,
+        dragToClose: true
+      });
     </script>
   </body>
 </html>

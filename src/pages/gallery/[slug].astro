@@ -29,17 +29,34 @@ const { topic } = Astro.props;
         <div class="scrapbook">
           {
             topic.photos.map((photo) => (
-              <article
-                class="scrap-photo"
-                style={photo.image ? `--scrap-image: url("${photo.image}")` : ""}
-              >
-                <div class="scrap-frame">
-                  <div class="scrap-image" aria-hidden="true"></div>
-                  <div class="scrap-copy">
-                    <strong>{photo.title}</strong>
-                    <span>{photo.caption}</span>
+              <article class="scrap-photo">
+                {photo.image ? (
+                  <a
+                    class="scrap-frame scrap-link"
+                    href={photo.image}
+                    data-fancybox={`gallery-${topic.slug}`}
+                    data-caption={`${photo.title} - ${photo.caption}`}
+                  >
+                    <img
+                      class="scrap-image scrap-image-file"
+                      src={photo.image}
+                      alt={photo.title}
+                      loading="lazy"
+                    />
+                    <div class="scrap-copy">
+                      <strong>{photo.title}</strong>
+                      <span>{photo.caption}</span>
+                    </div>
+                  </a>
+                ) : (
+                  <div class="scrap-frame">
+                    <div class="scrap-image scrap-placeholder" aria-hidden="true"></div>
+                    <div class="scrap-copy">
+                      <strong>{photo.title}</strong>
+                      <span>{photo.caption}</span>
+                    </div>
                   </div>
-                </div>
+                )}
               </article>
             ))
           }

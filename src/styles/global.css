@@ -480,6 +480,7 @@ h2 {
 }
 
 .scrap-frame {
+  display: block;
   padding: 10px 10px 16px;
   border: 1px solid rgba(31, 43, 42, 0.1);
   border-radius: 4px;
@@ -489,23 +490,46 @@ h2 {
     inset 0 0 0 1px rgba(255, 255, 255, 0.7);
 }
 
+.scrap-link {
+  cursor: zoom-in;
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.scrap-link:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 24px 50px rgba(39, 55, 52, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+}
+
 .scrap-image {
-  min-height: clamp(190px, 24vw, 320px);
+  width: 100%;
   border-radius: 3px;
+}
+
+.scrap-image-file {
+  height: auto;
+  background: #f7f2e7;
+}
+
+.scrap-placeholder {
+  min-height: clamp(190px, 24vw, 320px);
   background: var(--scrap-image, linear-gradient(135deg, #376d5a, #e8a84c));
   background-size: cover;
   background-position: center;
 }
 
-.scrap-photo:nth-child(4n + 2) .scrap-image {
+.scrap-photo:nth-child(4n + 2) .scrap-placeholder {
   background: var(--scrap-image, linear-gradient(135deg, #456f94, #f0c66d));
 }
 
-.scrap-photo:nth-child(4n + 3) .scrap-image {
+.scrap-photo:nth-child(4n + 3) .scrap-placeholder {
   background: var(--scrap-image, linear-gradient(135deg, #c96452, #f1d9a6));
 }
 
-.scrap-photo:nth-child(4n) .scrap-image {
+.scrap-photo:nth-child(4n) .scrap-placeholder {
   background: var(--scrap-image, linear-gradient(135deg, #263e5c, #7ab28b));
 }
 
@@ -955,7 +979,7 @@ footer {
     transform: none !important;
   }
 
-  .scrap-image {
+  .scrap-placeholder {
     min-height: 220px;
   }
 }
