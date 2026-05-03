@@ -1,0 +1,31 @@
+name: 申请删除照片墙照片
+description: 删除照片墙某个专题里的照片
+title: "photo-delete: "
+labels:
+  - photo-delete
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提交后，将进行人工审核，请勿恶意提交，否则禁用账号。
+        如果该专题里已经有相同 `title` 的照片，会删除它。
+  - type: dropdown
+    id: topic
+    attributes:
+      label: topic
+      description: 要删除的照片所属专题。
+      options:
+        - classroom
+        - events
+        - graduation-day
+        - candid
+    validations:
+      required: true
+  - type: input
+    id: title
+    attributes:
+      label: title
+      description: 照片标题；同一专题内标题相同会被视为删除已有照片。
+      placeholder: 班级节目
+    validations:
+      required: true

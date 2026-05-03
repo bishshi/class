@@ -1,0 +1,53 @@
+name: 更新照片墙照片
+description: 新增或修改照片墙某个专题里的照片
+title: "photo: "
+labels:
+  - photo-update
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提交后，自动化会根据 `topic` 找到对应的 `src/data/photo-topics/<topic>.ts`。
+        如果该专题里已经有相同 `title` 的照片，会更新它；否则会追加一张新照片。
+  - type: dropdown
+    id: topic
+    attributes:
+      label: topic
+      description: 要写入的照片专题。
+      options:
+        - classroom
+        - events
+        - graduation-day
+        - candid
+    validations:
+      required: true
+  - type: input
+    id: title
+    attributes:
+      label: title
+      description: 照片标题；同一专题内标题相同会被视为修改已有照片。
+      placeholder: 班级节目
+    validations:
+      required: true
+  - type: textarea
+    id: caption
+    attributes:
+      label: caption
+      description: 照片说明。
+      placeholder: 那天大家一起站在灯光下面。
+    validations:
+      required: true
+  - type: input
+    id: image
+    attributes:
+      label: image
+      description: 图片地址，可以是外链，也可以是站内路径，例如 /photos/events/show.jpg。
+      placeholder: https://example.com/photo.jpg
+    validations:
+      required: true
+  - type: input
+    id: cover
+    attributes:
+      label: cover
+      description: 可选。填写后会同时更新该专题封面；留空则不改封面。
+      placeholder: https://example.com/cover.jpg

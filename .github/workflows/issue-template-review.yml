@@ -1,0 +1,71 @@
+name: Review Issues Without Template
+
+on:
+  issues:
+    types:
+      - opened
+
+permissions:
+  issues: write
+
+jobs:
+  label-without-template:
+    if: ${{ !github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add review label when no template is used
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const reviewLabel = "needs-review";
+            const templateLabels = new Set([
+              "people-update",
+              "photo-update",
+              "site-suggestion",
+            ]);
+
+            const issue = context.payload.issue;
+            const labels = issue.labels.map((label) => label.name);
+            const body = issue.body || "";
+            const title = issue.title || "";
+
+            const hasTemplateLabel = labels.some((label) => templateLabels.has(label));
+            const hasTemplateTitle =
+              title.startsWith("people:") ||
+              title.startsWith("photo:") ||
+              title.startsWith("suggestion:");
+            const hasTemplateFields =
+              body.includes("### slug") ||
+              body.includes("### topic") ||
+              body.includes("### 建议涉及的网站部分");
+
+            if (hasTemplateLabel || hasTemplateTitle || hasTemplateFields) {
+              return;
+            }
+
+            try {
+              await github.rest.issues.getLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: reviewLabel,
+              });
+            } catch (error) {
+              if (error.status !== 404) {
+                throw error;
+              }
+
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: reviewLabel,
+                color: "fbca04",
+                description: "Issue did not use a repository template and needs manual review.",
+              });
+            }
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: [reviewLabel],
+            });

@@ -1,0 +1,66 @@
+name: Update Photo Data
+
+on:
+  issues:
+    types:
+      - opened
+      - edited
+      - labeled
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  update-photo:
+    if: contains(github.event.issue.labels.*.name, 'photo-update') || startsWith(github.event.issue.title, 'photo:')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Update photo topic data
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        run: node scripts/update-photo-topic-from-issue.mjs
+
+      - name: Create pull request
+        id: create-pr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore: update photo data from issue #${{ github.event.issue.number }}"
+          title: "更新照片墙：#${{ github.event.issue.number }}"
+          body: |
+            由 #${{ github.event.issue.number }} 自动生成。
+
+            这个 PR 会根据 issue 表单更新 `src/data/photo-topics/<topic>.ts`：
+            - 如果同一专题内已有相同 `title`，则修改对应照片
+            - 如果没有相同 `title`，则追加一张新照片
+            - 如果填写了 `cover`，则同步更新专题封面
+          branch: photo-update/issue-${{ github.event.issue.number }}
+          delete-branch: true
+          labels: photo-update
+
+      - name: Comment on issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prUrl = "${{ steps.create-pr.outputs.pull-request-url }}";
+            const body = prUrl
+              ? `已根据这个 issue 创建照片更新 PR：${prUrl}\n\n如果内容还要调整，直接编辑 issue 表单即可更新同一个 PR。`
+              : "这个 issue 没有产生新的文件改动，所以没有创建 PR。";
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
