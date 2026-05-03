@@ -1,0 +1,224 @@
+/* ========================================
+   Twikoo 便利贴主题 CSS
+   覆盖原始样式，粘贴到博客自定义 CSS 即可
+   ======================================== */
+
+/* 便利贴颜色变量 */
+#twikoo {
+  --tk-note-1: #fff9c4;
+  --tk-note-2: #d7f7c2;
+  --tk-note-3: #cce8ff;
+  --tk-note-4: #f0d6ff;
+  --tk-note-5: #ffe4cc;
+  --tk-note-shadow: 2px 3px 0 rgba(0, 0, 0, 0.10), 0 1px 0 rgba(0, 0, 0, 0.06);
+  --tk-note-hover-shadow: 4px 10px 20px rgba(0, 0, 0, 0.16);
+}
+
+/* 评论容器：瀑布流/网格布局 */
+#twikoo .tk-comments-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+  min-height: 10rem;
+}
+
+/* 隐藏原有竖向分隔线 */
+#twikoo .tk-comment {
+  margin-top: 0;
+}
+
+/* ---- 单张便利贴 ---- */
+#twikoo .tk-comment {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-radius: 2px;
+  padding: 14px 14px 36px;
+  box-shadow: var(--tk-note-shadow);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, z-index 0s;
+  cursor: default;
+  min-height: 130px;
+  border: none;
+  word-break: break-word;
+  /* 去掉原来的 flex-direction: row */
+}
+
+/* 五色轮换 */
+#twikoo .tk-comment:nth-child(5n+1) { background: var(--tk-note-1); transform: rotate(-1.2deg); }
+#twikoo .tk-comment:nth-child(5n+2) { background: var(--tk-note-2); transform: rotate(0.7deg); }
+#twikoo .tk-comment:nth-child(5n+3) { background: var(--tk-note-3); transform: rotate(-0.4deg); }
+#twikoo .tk-comment:nth-child(5n+4) { background: var(--tk-note-4); transform: rotate(1.3deg); }
+#twikoo .tk-comment:nth-child(5n+5) { background: var(--tk-note-5); transform: rotate(-0.8deg); }
+
+/* 悬停浮起 */
+#twikoo .tk-comment:hover {
+  transform: rotate(0deg) scale(1.04) translateY(-4px) !important;
+  box-shadow: var(--tk-note-hover-shadow);
+  z-index: 20;
+}
+
+/* 顶部胶带条 */
+#twikoo .tk-comment::before {
+  content: '';
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 1px;
+  border: 0.5px solid rgba(0, 0, 0, 0.08);
+  box-shadow: none;
+}
+
+/* 底部折角效果 */
+#twikoo .tk-comment::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 16px 16px;
+  border-color: transparent transparent rgba(0, 0, 0, 0.10) transparent;
+}
+
+/* ---- 头像区域 ---- */
+#twikoo .tk-comment > .tk-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 0;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.10);
+}
+
+#twikoo .tk-comment > .tk-avatar .tk-avatar-img {
+  height: 30px;
+  width: 30px;
+}
+
+/* 主体内容区 */
+#twikoo .tk-comment > .tk-main {
+  width: 100%;
+}
+
+/* 昵称 */
+#twikoo .tk-comment .tk-nick-link {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.6);
+}
+#twikoo .tk-comment .tk-nick-link:hover {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+/* 操作按钮（点赞等）浮在右侧 */
+#twikoo .tk-comment .tk-row {
+  flex-wrap: wrap;
+}
+
+/* 正文内容 */
+#twikoo .tk-comment .tk-content {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: rgba(0, 0, 0, 0.75);
+  max-height: 200px;
+  overflow: hidden;
+}
+
+/* 元信息（时间、地区等） */
+#twikoo .tk-comment .tk-extras {
+  position: absolute;
+  bottom: 8px;
+  left: 14px;
+  right: 20px;
+  font-size: 10px;
+  color: rgba(0, 0, 0, 0.38);
+  flex-wrap: nowrap;
+  overflow: hidden;
+  margin: 0;
+}
+#twikoo .tk-comment .tk-extra {
+  margin-top: 0;
+  margin-right: 6px;
+}
+
+/* 点赞按钮颜色适配 */
+#twikoo .tk-comment .tk-action-link {
+  color: rgba(0, 0, 0, 0.4);
+}
+#twikoo .tk-comment .tk-action-icon {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+/* ---- 回复子评论 ---- */
+#twikoo .tk-comment .tk-replies {
+  margin-top: 8px;
+  max-height: none;
+  overflow: visible;
+  padding-left: 8px;
+  border-left: 2px solid rgba(0, 0, 0, 0.10);
+}
+
+/* ---- 评论框 ---- */
+#twikoo .tk-submit {
+  grid-column: 1 / -1;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1.5px dashed rgba(0, 0, 0, 0.15);
+  border-radius: 2px;
+  padding: 1rem;
+  box-shadow: none;
+}
+
+/* ---- 分页 ---- */
+#twikoo .tk-pagination {
+  grid-column: 1 / -1;
+}
+
+/* ---- 深色模式适配 ---- */
+@media (prefers-color-scheme: dark) {
+  #twikoo {
+    --tk-note-1: #4a4520;
+    --tk-note-2: #1f3b1a;
+    --tk-note-3: #1a2e42;
+    --tk-note-4: #32204a;
+    --tk-note-5: #3f2b18;
+    --tk-note-shadow: 2px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 0 rgba(0, 0, 0, 0.3);
+  }
+  #twikoo .tk-comment .tk-nick-link { color: rgba(255, 255, 255, 0.75); }
+  #twikoo .tk-comment .tk-content { color: rgba(255, 255, 255, 0.80); }
+  #twikoo .tk-comment .tk-extras { color: rgba(255, 255, 255, 0.40); }
+  #twikoo .tk-comment .tk-action-link,
+  #twikoo .tk-comment .tk-action-icon { color: rgba(255, 255, 255, 0.45); }
+  #twikoo .tk-comment::before { background: rgba(255, 255, 255, 0.15); }
+}
+
+/* 主题框架深色模式（Hexo/Hugo 常见的 class） */
+.night #twikoo,
+.darkmode #twikoo,
+.DarkMode #twikoo,
+[data-theme="dark"] #twikoo,
+[data-user-color-scheme="dark"] #twikoo {
+  --tk-note-1: #4a4520;
+  --tk-note-2: #1f3b1a;
+  --tk-note-3: #1a2e42;
+  --tk-note-4: #32204a;
+  --tk-note-5: #3f2b18;
+}
+
+/* ---- 移动端：单列 ---- */
+@media screen and (max-width: 600px) {
+  #twikoo .tk-comments-container {
+    grid-template-columns: 1fr;
+  }
+  #twikoo .tk-comment {
+    transform: rotate(0deg) !important;
+  }
+}

@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { featuredMessage, messagesIntro, twikooConfig } from "../data/messages";
 import { site } from "../data/site";
+import twikooThemeUrl from "../styles/twikoo2.css";
 ---
 
 <BaseLayout title={`${messagesIntro.title} · ${site.className}`}>
@@ -25,7 +26,7 @@ import { site } from "../data/site";
         {
           twikooConfig.envId ? (
             <div
-              id="tcomment"
+              id="twikoo"
               class="twikoo-sticky-wall"
               data-env-id={twikooConfig.envId}
               data-path={twikooConfig.path}
@@ -47,111 +48,11 @@ import { site } from "../data/site";
   {
     twikooConfig.envId && (
       <>
-        <link rel="stylesheet" href={twikooConfig.styleSrc} />
-        <style is:inline>
-          #tcomment.twikoo-sticky-wall {
-            --sticky-1: #fff1a8;
-            --sticky-2: #dff1c7;
-            --sticky-3: #d8ebf7;
-            --sticky-4: #f8d7d0;
-            --sticky-5: #eadcf4;
-            --sticky-tape: rgba(255, 255, 255, 0.62);
-          }
-
-          #tcomment.twikoo-sticky-wall .tk-submit {
-            margin-bottom: 2rem !important;
-            padding: 1.25rem !important;
-            border: 1px solid var(--line) !important;
-            border-radius: 8px !important;
-            background: #fffdf7 !important;
-            box-shadow: var(--shadow) !important;
-          }
-
-          #tcomment.twikoo-sticky-wall .tk-send {
-            border-color: var(--green) !important;
-            background: var(--green) !important;
-            color: #fffdf7 !important;
-            font-weight: 800 !important;
-          }
-
-          #tcomment.twikoo-sticky-wall .tk-comments-title {
-            margin: 1.5rem 0 0.75rem !important;
-            color: var(--green) !important;
-          }
-
-          #tcomment.twikoo-sticky-wall .tk-comments-container > .tk-comment {
-            position: relative !important;
-            margin-top: 1.35rem !important;
-            padding: 1.25rem !important;
-            border-radius: 3px !important;
-            background: var(--sticky-1) !important;
-            box-shadow:
-              0 16px 30px rgba(39, 55, 52, 0.14),
-              inset 0 -18px 28px rgba(255, 255, 255, 0.18) !important;
-            transform: rotate(-0.7deg) !important;
-            transform-origin: center !important;
-          }
-
-          #tcomment.twikoo-sticky-wall .tk-comments-container > .tk-comment:nth-of-type(5n + 2) {
-            background: var(--sticky-2) !important;
-            transform: translateY(6px) rotate(0.6deg) !important;
-          }
-
-          #tcomment.twikoo-sticky-wall .tk-comments-container > .tk-comment:nth-of-type(5n + 3) {
-            background: var(--sticky-3) !important;
-            transform: rotate(-0.3deg) !important;
-          }
-
-          #tcomment.twikoo-sticky-wall .tk-comments-container > .tk-comment:nth-of-type(5n + 4) {
-            background: var(--sticky-4) !important;
-            transform: translateY(8px) rotate(0.8deg) !important;
-          }
-
-          #tcomment.twikoo-sticky-wall .tk-comments-container > .tk-comment:nth-of-type(5n) {
-            background: var(--sticky-5) !important;
-            transform: rotate(-0.5deg) !important;
-          }
-
-          #tcomment.twikoo-sticky-wall .tk-comments-container > .tk-comment::before {
-            content: "" !important;
-            position: absolute !important;
-            top: 0.45rem !important;
-            left: 50% !important;
-            width: 3.5rem !important;
-            height: 0.8rem !important;
-            background: var(--sticky-tape) !important;
-            box-shadow: 0 1px 4px rgba(39, 55, 52, 0.13) !important;
-            transform: translateX(-50%) rotate(2deg) !important;
-            pointer-events: none !important;
-          }
-
-          #tcomment.twikoo-sticky-wall .tk-comments-container > .tk-comment .tk-content,
-          #tcomment.twikoo-sticky-wall .tk-comments-container > .tk-comment .tk-content p {
-            color: var(--ink) !important;
-          }
-
-          #tcomment.twikoo-sticky-wall .tk-comments-container > .tk-comment .tk-replies .tk-comment {
-            background: rgba(255, 253, 247, 0.6) !important;
-            border-radius: 6px !important;
-            padding: 0.75rem !important;
-            transform: none !important;
-            box-shadow: none !important;
-          }
-
-          #tcomment.twikoo-sticky-wall .tk-comments-container > .tk-comment .tk-replies .tk-comment::before {
-            content: none !important;
-          }
-
-          @media (max-width: 560px) {
-            #tcomment.twikoo-sticky-wall .tk-comments-container > .tk-comment {
-              transform: none !important;
-            }
-          }
-        </style>
+        <link rel="stylesheet" href={twikooThemeUrl} />
         <script is:inline src={twikooConfig.scriptSrc} defer></script>
         <script is:inline>
           window.addEventListener("DOMContentLoaded", function () {
-            const container = document.querySelector("#tcomment");
+            const container = document.querySelector("#twikoo");
 
             if (!container || !window.twikoo) {
               return;
@@ -159,7 +60,7 @@ import { site } from "../data/site";
 
             window.twikoo.init({
               envId: container.dataset.envId,
-              el: "#tcomment",
+              el: "#twikoo",
               path: container.dataset.path || location.pathname,
               lang: container.dataset.lang || "zh-CN"
             });

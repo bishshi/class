@@ -21,8 +21,7 @@ export const messages = [
 
 export const twikooConfig = {
   envId: import.meta.env.PUBLIC_TWIKOO_ENV_ID ?? "",
-  scriptSrc: "https://cdn.jsdelivr.net/npm/twikoo@1.7.7/dist/twikoo.nocss.js",
-  styleSrc: "https://cdn.jsdelivr.net/npm/twikoo@1.7.7/dist/twikoo.css",
+  scriptSrc: "https://cdn.jsdelivr.net/npm/twikoo@1.7.7/dist/twikoo.min.js",
   path: "/messages/",
   lang: "zh-CN"
 };
