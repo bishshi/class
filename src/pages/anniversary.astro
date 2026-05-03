@@ -1,0 +1,164 @@
+---
+import "../styles/anniversary.css";
+
+const memoryCards = [
+  {
+    kicker: "2021",
+    title: "把名字写进同一张名单",
+    text: "从陌生的座位、军训的队列，到第一次一起等铃声响起，班级的故事从那时开始慢慢有了形状。"
+  },
+  {
+    kicker: "2022",
+    title: "普通日子也有回声",
+    text: "网课、考试、活动、晚自习，很多当时只觉得匆忙的片段，后来都变成了可以反复想起的证据。"
+  },
+  {
+    kicker: "2023",
+    title: "高三把我们推向同一个方向",
+    text: "倒计时、试卷、誓师和一次次模拟，把每个人的步伐压得很紧，也把彼此留得更深。"
+  },
+  {
+    kicker: "2024",
+    title: "毕业不是散场",
+    text: "离开校门以后，我们去了不同的地方，但那些一起走过的清晨和黄昏，仍然在这里被好好保存。"
+  }
+];
+
+const gallery = [
+  "/assets/campus-hero.png",
+  "/assets/exam/image1.png",
+  "/assets/exam/image3.jpg",
+  "/assets/exam/image4.jpeg",
+  "/assets/exam/image5.jpg",
+  "/assets/exam/image6.jpg"
+];
+
+const backgroundMusic = "/assets/anniversary/background-music.mp3";
+const anniversaryVideo = "/assets/anniversary/anniversary-video.mp4";
+const videoPoster = "/assets/campus-hero.png";
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>2024届12班周年专题</title>
+    <meta
+      name="description"
+      content="2024届12班周年专题页，收下那些毕业之后仍然清晰的瞬间。"
+    />
+  </head>
+  <body>
+    <main class="anniversary-page">
+      <section class="hero" aria-labelledby="hero-title">
+        <img class="hero-media" src="/assets/campus-hero.png" alt="校园记忆" />
+        <div class="hero-shade" aria-hidden="true"></div>
+        <nav class="topbar" aria-label="周年专题导航">
+          <a class="home-link" href="/">2024届12班</a>
+          <div class="topbar-links">
+            <a href="#memory">时间切片</a>
+            <a href="#gallery">影像回放</a>
+            <a href="#letter">写给我们</a>
+          </div>
+        </nav>
+        <div class="hero-content">
+          <p class="eyebrow">毕业周年专题</p>
+          <h1 id="hero-title">我们仍在同一段青春里相遇</h1>
+          <p class="hero-copy">
+            从 2024 年夏天出发，到今天再次回望。这里不急着总结人生，只把一起经过的日子重新点亮。
+          </p>
+          <div class="hero-actions" aria-label="页面入口">
+            <a class="primary-action" href="#memory">开始回望</a>
+            <a class="secondary-action" href="/gallery/">去照片墙</a>
+          </div>
+        </div>
+        <aside class="music-player" aria-label="背景音乐">
+          <span class="music-mark" aria-hidden="true">♪</span>
+          <div class="music-copy">
+            <strong>背景乐</strong>
+            <span>替换 public/assets/anniversary/background-music.mp3</span>
+          </div>
+          <audio controls preload="metadata" loop>
+            <source src={backgroundMusic} type="audio/mpeg" />
+          </audio>
+        </aside>
+        <div class="hero-count">
+          <strong>2</strong>
+          <span>周年纪念</span>
+        </div>
+      </section>
+
+      <section class="ticker" aria-label="纪念短句">
+        <span>铃声响过</span>
+        <span>操场还亮着</span>
+        <span>试卷翻页</span>
+        <span>合照定格</span>
+        <span>名字仍被记得</span>
+      </section>
+
+      <section class="memory-section" id="memory" aria-labelledby="memory-title">
+        <div class="section-heading">
+          <p class="eyebrow">Time Slices</p>
+          <h2 id="memory-title">把三年拆成几束光</h2>
+        </div>
+        <div class="memory-grid">
+          {
+            memoryCards.map((card) => (
+              <article class="memory-card">
+                <span>{card.kicker}</span>
+                <h3>{card.title}</h3>
+                <p>{card.text}</p>
+              </article>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="gallery-section" id="gallery" aria-labelledby="gallery-title">
+        <div class="section-heading">
+          <p class="eyebrow">Replay</p>
+          <h2 id="gallery-title">一些会自己发光的画面</h2>
+        </div>
+        <div class="video-feature" aria-label="周年视频">
+          <div class="video-frame">
+            <video controls preload="metadata" poster={videoPoster}>
+              <source src={anniversaryVideo} type="video/mp4" />
+            </video>
+          </div>
+          <div class="video-caption">
+            <p class="eyebrow">Film</p>
+            <h3>周年视频</h3>
+            <p>
+              替换 public/assets/anniversary/anniversary-video.mp4，这里会显示为专题视频播放区。
+            </p>
+          </div>
+        </div>
+        <div class="photo-strip">
+          {
+            gallery.map((src, index) => (
+              <figure class={`photo-card photo-card-${index + 1}`}>
+                <img src={src} alt={`周年纪念影像 ${index + 1}`} loading={index === 0 ? "eager" : "lazy"} />
+              </figure>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="letter-section" id="letter" aria-labelledby="letter-title">
+        <div class="letter-panel">
+          <p class="eyebrow">For Us</p>
+          <h2 id="letter-title">写给毕业后的我们</h2>
+          <p>
+            后来的我们会遇见新的城市、新的课程、新的工作和新的自己。可只要有人再次提起那间教室、那次考试、那张合照，
+            2024届12班就会短暂地重新集合。
+          </p>
+          <p>
+            愿每一次回到这里，都不是为了停在过去，而是确认：那些一起认真生活过的日子，已经成为继续往前走的底气。
+          </p>
+          <a href="/messages/">留下新的近况</a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
