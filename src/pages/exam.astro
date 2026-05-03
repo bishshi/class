@@ -228,6 +228,16 @@ let questionNumber = 0;
             }
           </article>
 
+          <button
+            class="score-fab"
+            type="button"
+            aria-controls="scorer"
+            aria-expanded="false"
+            aria-label="打开答题卡"
+            data-score-toggle
+          >
+            答
+          </button>
           <aside class="score-sidebar" id="scorer" aria-label="答题卡">
             <form class="score-panel" id="exam-scorer">
               <div class="score-sidebar-head">
@@ -357,6 +367,8 @@ let questionNumber = 0;
     }}
   >
     const scorer = document.querySelector("#exam-scorer");
+    const scoreSidebar = document.querySelector("#scorer");
+    const scoreToggle = document.querySelector("[data-score-toggle]");
     const candidateName = document.querySelector("#candidate-name");
     const admissionNumber = document.querySelector("#admission-number");
     const seatNumber = document.querySelector("#seat-number");
@@ -364,6 +376,16 @@ let questionNumber = 0;
     const cardAdmissionNumber = document.querySelector("#card-admission-number");
     const cardSeatNumber = document.querySelector("#card-seat-number");
     const draftStorageKey = "examDraft";
+
+    const setScoreMenuOpen = (isOpen) => {
+      scoreSidebar?.classList.toggle("is-open", isOpen);
+
+      if (scoreToggle) {
+        scoreToggle.setAttribute("aria-expanded", String(isOpen));
+        scoreToggle.setAttribute("aria-label", isOpen ? "关闭答题卡" : "打开答题卡");
+        scoreToggle.textContent = isOpen ? "×" : "答";
+      }
+    };
 
     const normalizeAnswer = (value) =>
       String(value || "")
@@ -754,7 +776,16 @@ let questionNumber = 0;
           behavior: "smooth",
           block: "start"
         });
+        setScoreMenuOpen(false);
       });
+    });
+    scoreToggle?.addEventListener("click", () => {
+      setScoreMenuOpen(!scoreSidebar?.classList.contains("is-open"));
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setScoreMenuOpen(false);
+      }
     });
     admissionNumber?.addEventListener("input", () => {
       admissionNumber.value = admissionNumber.value.replace(/\D/g, "").slice(0, admissionNumber.maxLength);
