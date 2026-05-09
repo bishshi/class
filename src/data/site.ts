@@ -21,7 +21,7 @@ export const contactLinks = [
   },
   {
     label: "微信公众号",
-    href: "#",
+    href: "https://pic.biss.click/image/44a5e576-5cf3-4752-bae2-70d74619324f.webp",
     icon: "fa-brands fa-weixin",
     qrImage: "https://pic.biss.click/image/44a5e576-5cf3-4752-bae2-70d74619324f.webp"
   }

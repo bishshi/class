@@ -408,6 +408,27 @@ let questionNumber = 0;
       return Math.min(Math.max(score, 0), max);
     };
 
+    const clampManualScoreInput = (input) => {
+      const value = input.value.trim();
+
+      if (!value) {
+        return;
+      }
+
+      const max = Number(input.dataset.points || input.max || 0);
+      const score = Number(value);
+
+      if (!Number.isFinite(score)) {
+        return;
+      }
+
+      const clampedScore = clampScore(score, max);
+
+      if (score !== clampedScore) {
+        input.value = String(clampedScore);
+      }
+    };
+
     const getDraft = () => ({
       candidate: {
         name: candidateName?.value ?? "",
@@ -486,6 +507,7 @@ let questionNumber = 0;
 
         if (draft.manualScores?.[questionNumber] != null) {
           input.value = draft.manualScores[questionNumber];
+          clampManualScoreInput(input);
         }
       });
     };
@@ -764,6 +786,7 @@ let questionNumber = 0;
     });
     scorer?.querySelectorAll("[data-manual-score]").forEach((input) => {
       input.addEventListener("input", () => {
+        clampManualScoreInput(input);
         updateAnswerCardStates();
         saveDraft();
       });
