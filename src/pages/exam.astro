@@ -69,8 +69,29 @@ let questionNumber = 0;
         <h1>{examIntro.title}</h1>
         <p>{examIntro.description}</p>
         <div class="hero-actions">
+          <a class="button primary" href={examIntro.previewHref}>预览原卷</a>
           <a class="button primary" href={examIntro.downloadHref} download>下载原卷</a>
           <a class="button" href="#paper">阅读试卷</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="exam-preview-band" id="original-paper" aria-labelledby="original-paper-title">
+      <div class="section-inner">
+        <div class="exam-preview-head">
+          <div>
+            <p class="eyebrow">Original Paper</p>
+            <h2 id="original-paper-title">原卷预览</h2>
+          </div>
+          <a class="button" href={examIntro.downloadHref} target="_blank" rel="noreferrer">打开原卷</a>
+        </div>
+        <div class="exam-preview-frame">
+          <iframe src={examIntro.downloadHref} title="原卷预览" loading="lazy"></iframe>
+          <p>
+            如果预览没有显示，可以
+            <a href={examIntro.downloadHref} target="_blank" rel="noreferrer">打开原卷</a>
+            查看。
+          </p>
         </div>
       </div>
     </section>

@@ -3,7 +3,8 @@ export const examIntro = {
   eyebrow: "Class 612 Exam",
   description:
     "一份写给 2024 届 612 班的特别试卷。网页保留正文、插图与公式，原始版式可下载 Word 原卷查看。",
-  downloadHref: "/assets/exam/2024-exam.docx"
+  downloadHref: "https://s3.biss.click/OFFICE/exam-2024.pdf",
+  previewHref: "https://file.biss.click/onlinePreview?url=aHR0cHM6Ly9zMy5iaXNzLmNsaWNrL09GRklDRS9leGFtLTIwMjQucGRm&watermarkTxt=%E4%BB%85%E4%BE%9B%E9%A2%84%E8%A7%88"
 };
 
 export const examMath: Record<string, string> = {
