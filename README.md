@@ -1,0 +1,107 @@
+# 612 班级纪念站
+
+这是一个用 Astro 搭建的班级纪念网站，用来保存毕业后的班级记忆：时间线、照片墙、同学近况、综合试卷和留言墙。
+
+## 功能
+
+- 首页：班级纪念入口、导航和基础统计。
+- 三年时间线：记录高中阶段的重要片段。
+- 照片墙：按专题整理课堂日常、班级活动、毕业当天和随手抓拍。
+- 如今的我们：展示同学卡片和个人近况页面。
+- 综合试卷：把纪念试卷做成网页，并保留 Word 原卷下载。
+- 留言墙：接入 Twikoo 后可在页面中留言。
+
+## 技术栈
+
+- Astro 6
+- TypeScript
+- 原生 CSS
+- Twikoo 评论系统
+
+## 快速开始
+
+```bash
+npm install
+npm run dev
+```
+
+本地开发服务启动后，按终端提示打开页面即可。
+
+常用命令：
+
+```bash
+npm run dev      # 启动开发服务器
+npm run build    # 构建静态站点到 dist
+npm run preview  # 预览构建结果
+```
+
+## 项目结构
+
+```text
+.
+|-- public/
+|   `-- assets/              # 静态图片、试卷附件等资源
+|-- scripts/                 # GitHub Issue 自动更新数据脚本
+|-- src/
+|   |-- data/                # 站点内容数据
+|   |   |-- site.ts          # 站点标题、导航、联系方式
+|   |   |-- timeline.ts      # 时间线内容
+|   |   |-- photos.ts        # 照片墙入口数据
+|   |   |-- photo-topics/    # 各照片专题
+|   |   |-- people.ts        # 同学资料
+|   |   |-- exam.ts          # 综合试卷内容与评分配置
+|   |   `-- messages.ts      # 留言墙文案与 Twikoo 配置
+|   |-- layouts/             # 通用页面布局
+|   |-- pages/               # 路由页面
+|   `-- styles/              # 全局和页面样式
+|-- astro.config.mjs
+`-- package.json
+```
+
+## 内容维护
+
+大部分网站内容都在 `src/data` 目录中维护。
+
+- 修改站点名称、首页文案、导航和联系方式：编辑 `src/data/site.ts`
+- 修改时间线：编辑 `src/data/timeline.ts`
+- 修改照片墙专题：编辑 `src/data/photo-topics/*.ts`
+- 修改同学资料：编辑 `src/data/people.ts`
+- 修改试卷内容和答案：编辑 `src/data/exam.ts`
+- 修改留言墙文案和 Twikoo 配置：编辑 `src/data/messages.ts`
+
+新增静态资源时，放到 `public/assets` 下。页面中引用资源时使用以 `/assets/` 开头的路径，例如：
+
+```ts
+photo: "/assets/photos/example.jpg"
+```
+
+## 留言墙配置
+
+留言墙使用 Twikoo。需要在本地或部署平台中配置环境变量：
+
+```bash
+PUBLIC_TWIKOO_ENV_ID=你的_Twikoo_envId
+```
+
+如果没有配置该变量，留言页会显示待配置提示，不会加载评论区。
+
+## GitHub Issue 自动更新
+
+仓库中包含用于收集内容更新的 Issue 模板和 GitHub Actions：
+
+- `people-update`：根据 Issue 表单更新 `src/data/people.ts`
+- `photo-update`：根据 Issue 表单更新对应的照片专题数据
+
+提交或编辑对应 Issue 后，工作流会运行脚本并自动创建更新 PR，方便审核后合并。
+
+## 构建与部署
+
+执行：
+
+```bash
+npm run build
+```
+
+构建产物会生成到 `dist/`。这个项目是静态站点，可以部署到 GitHub Pages、Vercel、Netlify 或任意静态资源服务器。
+
+部署前建议检查 `astro.config.mjs` 中的 `site` 字段，把它改成真实站点地址。
