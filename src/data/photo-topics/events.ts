@@ -7,9 +7,9 @@ export const eventsTopic: PhotoTopic = {
   cover: "",
   photos: [
     {
-      title: "班级节目",
+      title: "高一下学期表彰大会",
       caption: "排练时觉得麻烦，回头看全是可爱。",
-      image: "https://pic.biss.click/image/ac8403bf-8732-4f43-bb4d-a1def1fc6fa9.jpg"
+      image: "https://pic.biss.click/image/50e233d6-dd88-4a10-bb2d-a42ace27cdec.jpg"
     },
     {
       title: "集体出游",
@@ -17,9 +17,9 @@ export const eventsTopic: PhotoTopic = {
       image: "https://pic.biss.click/image/ef56e433-2938-4f96-bc16-b6c973b7621d.png"
     },
     {
-      title: "比赛现场",
-      caption: "赢没赢都记得，站在一起才是重点。",
-      image: ""
+      title: "百日誓师大会",
+      caption: "高三的第一次全体活动，大家都很随意地在听讲，虽然最后还是没能坚持到最后。",
+      image: "https://pic.biss.click/image/45bfbe79-bd7b-40f3-9670-1b34cc0957b2.png"
     }
   ]
 };
