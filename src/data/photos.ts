@@ -1,4 +1,5 @@
 import type { PhotoTopic } from "./photo-types";
+import { bjrzTopic } from "./photo-topics/bjrz";
 import { candidTopic } from "./photo-topics/candid";
 import { classroomTopic } from "./photo-topics/classroom";
 import { eventsTopic } from "./photo-topics/events";
@@ -10,6 +11,7 @@ export const galleryIntro = {
 };
 
 export const photoTopics: PhotoTopic[] = [
+  bjrzTopic,
   classroomTopic,
   eventsTopic,
   graduationDayTopic,
