@@ -7,29 +7,29 @@ export const classroomTopic: PhotoTopic = {
   cover: "",
   photos: [
     {
-      title: "窗边的座位",
-      caption: "把真实照片放到 public/photos/classroom/window-seat.jpg 后，再把 image 改成对应路径。",
-      image: ""
+      title: "窗边",
+      caption: "走廊尽头的窗户",
+      image: "https://pic.biss.click/image/d4aa5275-9581-4d43-8d7e-ef3f44f8c497.jpg"
     },
     {
       title: "黑板角落",
-      caption: "适合放倒计时、值日表、板书和课代表留下的提醒。",
-      image: ""
+      caption: "倒计时、值日表、板书和课代表留下的提醒。",
+      image: "https://pic.biss.click/image/049b8074-fde1-423c-b9b5-b89cfe4430e9.jpg"
     },
     {
-      title: "堆满书的桌面",
-      caption: "那些看起来很乱、后来又很想念的普通一天。",
-      image: ""
+      title: "黑板上的一句话",
+      caption: "",
+      image: "https://pic.biss.click/image/d37b224b-81ea-40cf-87aa-1dfa02312ba7.jpg"
     },
     {
-      title: "晚自习灯光",
-      caption: "可以放教室灯亮着、窗外天色暗下来的照片。",
-      image: ""
+      title: "高考加油",
+      caption: "",
+      image: "https://pic.biss.click/image/d06e370e-39a7-497e-a47d-eed7a759a67a.jpg"
     },
     {
-      title: "课间十分钟",
-      caption: "不用太正式，越像随手拍越有高中味道。",
-      image: ""
+      title: "询问老师",
+      caption: "课后向老师请教问题",
+      image: "https://pic.biss.click/image/95c03bd4-d0d3-4c38-9855-3342fd582080.jpg"
     }
   ]
 };
