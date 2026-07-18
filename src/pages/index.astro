@@ -5,6 +5,7 @@ import { featuredMessage, messages, messagesIntro } from "../data/messages";
 import { people, peopleIntro } from "../data/people";
 import { site, stats } from "../data/site";
 import { timeline, timelineIntro } from "../data/timeline";
+import { articles, featuredArticles } from "../data/articles";
 
 const previewTimeline = timeline.slice(0, 4);
 const previewPhotoTopics = photoTopics.slice(0, 4);
@@ -133,6 +134,48 @@ const previewPeople = people.slice(0, 6);
         </div>
 
         <a class="section-link" href="/people/">查看如今的我们</a>
+      </div>
+    </section>
+
+    <section id="articles" class="publication-band">
+      <div class="section-inner">
+        <div class="section-title publication-title">
+          <div>
+            <p class="eyebrow">FROM WECHAT · 青春刊物</p>
+            <h2>散落在公众号里的故事，也该被好好收藏</h2>
+          </div>
+          <p>
+            已整理 {articles.length} 篇公众号文章。从班级日志、毕业典礼到节日来信，按下时间的书签，重新读一遍当时的我们。
+          </p>
+        </div>
+
+        <div class="featured-articles">
+          {
+            featuredArticles.map((article, index) => (
+              <a
+                class:list={["article-card", index === 0 && "article-card-featured"]}
+                href={article.sourceUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <div
+                  class="article-cover"
+                  style={article.cover ? `--article-cover: url("${article.cover}")` : ""}
+                >
+                  <span>{article.category}</span>
+                </div>
+                <div class="article-copy">
+                  <time datetime={article.date}>{article.displayDate}</time>
+                  <h3>{article.title}</h3>
+                  <p>{article.excerpt}</p>
+                  <span class="read-more">阅读原文 <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+                </div>
+              </a>
+            ))
+          }
+        </div>
+
+        <a class="section-link publication-link" href="/articles/">翻阅全部 {articles.length} 篇</a>
       </div>
     </section>
 

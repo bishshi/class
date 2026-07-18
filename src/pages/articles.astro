@@ -1,0 +1,114 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { articleCategories, articles } from "../data/articles";
+
+const categoryCounts = Object.fromEntries(
+  articleCategories.map((category) => [category, articles.filter((article) => article.category === category).length])
+);
+---
+
+<BaseLayout title="青春刊物 · 2024届612班">
+  <main class="page-main publication-page">
+    <section class="page-hero publication-hero">
+      <div class="section-inner">
+        <a class="back-link" href="/">返回首页</a>
+        <p class="eyebrow">CLASS PUBLICATION · {articles.length} 篇</p>
+        <h1>青春刊物</h1>
+        <p>这里收录公众号里的班级日志、校园时刻与毕业后的来信。原文仍属于公众号，这里为它们做一份更容易寻找的目录。</p>
+      </div>
+    </section>
+
+    <section class="article-archive">
+      <div class="section-inner">
+        <div class="archive-tools" aria-label="文章筛选工具">
+          <label class="article-search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <span class="sr-only">搜索文章</span>
+            <input id="article-search" type="search" placeholder="搜索标题或摘要…" autocomplete="off" />
+          </label>
+          <div class="category-filters" role="group" aria-label="按分类筛选">
+            <button class="is-active" type="button" data-category="全部">全部 <span>{articles.length}</span></button>
+            {
+              articleCategories.map((category) => (
+                <button type="button" data-category={category}>{category} <span>{categoryCounts[category]}</span></button>
+              ))
+            }
+          </div>
+        </div>
+
+        <p class="archive-status" aria-live="polite">正在展示 <strong>{articles.length}</strong> 篇文章</p>
+
+        <div class="article-list" id="article-list">
+          {
+            articles.map((article, index) => (
+              <a
+                class="archive-card"
+                href={article.sourceUrl}
+                target="_blank"
+                rel="noreferrer"
+                data-category={article.category}
+                data-search={`${article.title} ${article.excerpt}`.toLocaleLowerCase("zh-CN")}
+              >
+                <div
+                  class="archive-cover"
+                  style={article.cover ? `--article-cover: url("${article.cover}")` : ""}
+                >
+                  {!article.cover && <span>{String(index + 1).padStart(3, "0")}</span>}
+                </div>
+                <div class="archive-copy">
+                  <div class="archive-meta">
+                    <span>{article.category}</span>
+                    <time datetime={article.date}>{article.displayDate}</time>
+                  </div>
+                  <h2>{article.title}</h2>
+                  <p>{article.excerpt}</p>
+                  <span class="archive-read">公众号原文 <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+                </div>
+              </a>
+            ))
+          }
+        </div>
+
+        <div class="archive-empty" hidden>
+          <span>没有找到相符的文章</span>
+          <p>换一个关键词，或者查看其他分类吧。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const searchInput = document.querySelector<HTMLInputElement>("#article-search");
+    const filterButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-category]")];
+    const cards = [...document.querySelectorAll<HTMLElement>(".archive-card")];
+    const status = document.querySelector<HTMLElement>(".archive-status");
+    const empty = document.querySelector<HTMLElement>(".archive-empty");
+    let activeCategory = "全部";
+
+    const updateResults = () => {
+      const query = searchInput?.value.trim().toLocaleLowerCase("zh-CN") ?? "";
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const categoryMatches = activeCategory === "全部" || card.dataset.category === activeCategory;
+        const searchMatches = !query || card.dataset.search?.includes(query);
+        const isVisible = Boolean(categoryMatches && searchMatches);
+        card.hidden = !isVisible;
+        if (isVisible) visibleCount += 1;
+      });
+
+      if (status) status.innerHTML = `正在展示 <strong>${visibleCount}</strong> 篇文章`;
+      if (empty) empty.hidden = visibleCount !== 0;
+    };
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeCategory = button.dataset.category ?? "全部";
+        filterButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+        updateResults();
+      });
+    });
+
+    searchInput?.addEventListener("input", updateResults);
+  </script>
+</BaseLayout>
