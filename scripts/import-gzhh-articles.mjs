@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -13,6 +14,12 @@ const cleanMarkdown = (value) =>
     .replace(/[*_`>#]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+
+const getLocalCoverPath = (url) => {
+  if (!url) return "";
+  const key = createHash("sha256").update(url).digest("hex").slice(0, 12);
+  return `/assets/article-covers/cover-${key}.webp`;
+};
 
 const getExcerpt = (body, title) => {
   const ignored = /(?:data:image|%3Csvg|transform=|阅读|点赞|分享|推荐|留言|2024届612|font-family|__bottom-bar__|sns_opr_btn|picture_content|page_content)/i;
@@ -60,16 +67,18 @@ const parseArticle = (fileName, raw) => {
   const contentStart = raw.search(/>\s*原文地址:/);
   const body = contentStart >= 0 ? raw.slice(contentStart).split(/\r?\n/).slice(2).join("\n") : raw;
   const images = [...body.matchAll(/!\[[^\]]*\]\((https?:\/\/[^\s\)]+)\)/g)]
-    .map((match) => match[1])
+    .map((match) => match[1].replaceAll("&amp;", "&"))
     .filter((url) => /mmbiz\.qpic\.cn/.test(url));
   const excerptText = getExcerpt(body, title);
+  const coverSourceUrl = images[0] ?? "";
 
   return {
     title,
     date,
     displayDate: date ? date.replaceAll("-", ".") : "日期待补",
     sourceUrl,
-    cover: images[0] ?? "",
+    cover: getLocalCoverPath(coverSourceUrl),
+    coverSourceUrl,
     excerpt: excerptText.length > 88 ? `${excerptText.slice(0, 88)}…` : excerptText || "一页从公众号找回的班级记录。",
     category: getCategory(title),
     fileName

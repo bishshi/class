@@ -6,6 +6,7 @@ export interface WechatArticle {
   displayDate: string;
   sourceUrl: string;
   cover: string;
+  coverSourceUrl?: string;
   excerpt: string;
   category: ArticleCategory;
   fileName: string;
