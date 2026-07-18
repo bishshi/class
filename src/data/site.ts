@@ -34,7 +34,8 @@ export const navItems = [
   { label: "青春刊物", href: "/articles/" },
   { label: "如今的我们", href: "/people/" },
   { label: "综合试卷", href: "/exam/" },
-  { label: "留言墙", href: "/messages/" }
+  { label: "留言墙", href: "/messages/" },
+  { label: "搜索", href: "/search/" }
 ];
 
 const leavingCampusDate = "2024-06-08";

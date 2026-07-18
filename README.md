@@ -10,6 +10,7 @@
 - 如今的我们：展示同学卡片和个人近况页面。
 - 综合试卷：把纪念试卷做成网页，并保留 Word 原卷下载。
 - 留言墙：接入 Twikoo 后可在页面中留言。
+- 全站搜索：通过 Typesense 搜索并筛选时间线、照片、文章和同学公开资料。
 
 ## 技术栈
 
@@ -33,7 +34,27 @@ npm run dev
 npm run dev      # 启动开发服务器
 npm run build    # 构建静态站点到 dist
 npm run preview  # 预览构建结果
+npm run search:sync # 将公开内容同步到 Typesense
 ```
+
+## Typesense 全站搜索
+
+复制 `.env.example` 中的配置到本地 `.env`、`.env.local` 或部署平台的环境变量。`npm run search:sync` 会自动读取这两个本地文件，且 `.env.local` 中的同名配置优先：
+
+- `PUBLIC_TYPESENSE_*` 会进入浏览器，只能使用具有搜索权限的 Search-only Key。
+- `TYPESENSE_ADMIN_API_KEY` 只用于同步索引，不能添加 `PUBLIC_` 前缀。
+
+配置完成后直接执行，不需要在终端中逐个设置环境变量：
+
+```bash
+npm run search:key
+npm run search:sync
+npm run build
+```
+
+`npm run search:key` 使用 `TYPESENSE_ADMIN_API_KEY` 创建一个仅能搜索 `class_memories` 集合的只读密钥，并自动写入 `.env.local`。如果已经存在只读密钥，脚本会停止；需要轮换时使用 `npm run search:key -- --force`。
+
+同步脚本会在集合不存在时创建 `class_memories`，然后批量更新现有搜索文档。部署流程应在内容更新后先执行同步，再构建和发布站点。
 
 ## 项目结构
 
