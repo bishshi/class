@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import OnThisDay from "../components/OnThisDay.astro";
+import RandomMemory from "../components/RandomMemory.astro";
 import { galleryIntro, photoTopics } from "../data/photos";
 import { featuredMessage, messages, messagesIntro } from "../data/messages";
 import { people, peopleIntro } from "../data/people";
@@ -25,6 +26,7 @@ const previewPeople = people.slice(0, 6);
       <p>{site.subtitle}</p>
       <div class="hero-actions">
         <a class="button primary" href="/timeline/">翻开回忆</a>
+        <RandomMemory />
         <a class="button" href="/messages/">写一句话</a>
       </div>
     </div>

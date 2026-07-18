@@ -19,9 +19,9 @@ import { timeline, timelineIntro } from "../data/timeline";
       <div class="section-inner">
         <div class="timeline">
           {
-            timeline.map((moment) =>
+            timeline.map((moment, index) =>
               moment.href ? (
-                <a class="moment moment-link" href={moment.href}>
+                <a class="moment moment-link" id={`moment-${index + 1}`} href={moment.href}>
                   <time>{moment.date}</time>
                   <div>
                     <h3>{moment.title}</h3>
@@ -29,7 +29,7 @@ import { timeline, timelineIntro } from "../data/timeline";
                   </div>
                 </a>
               ) : (
-                <article class="moment">
+                <article class="moment" id={`moment-${index + 1}`}>
                   <time>{moment.date}</time>
                   <div>
                     <h3>{moment.title}</h3>

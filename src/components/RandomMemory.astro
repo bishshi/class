@@ -1,0 +1,114 @@
+---
+import { articles } from "../data/articles";
+import { photoTopics } from "../data/photos";
+import { timeline } from "../data/timeline";
+
+const memoryGroups = [
+  {
+    type: "photo",
+    items: photoTopics.flatMap((topic) =>
+      topic.photos
+        .filter((photo) => photo.image)
+        .map((photo) => ({
+          href: photo.image,
+          title: photo.title,
+          caption: [topic.title, photo.caption].filter(Boolean).join(" · ")
+        }))
+    )
+  },
+  {
+    type: "article",
+    items: articles.map((article) => ({
+      href: article.sourceUrl,
+      title: article.title
+    }))
+  },
+  {
+    type: "timeline",
+    items: timeline.map((moment, index) => ({
+      href: `/timeline/#moment-${index + 1}`,
+      title: `${moment.date} · ${moment.title}`
+    }))
+  }
+];
+---
+
+<button
+  class="button random-memory-button"
+  id="random-memory-button"
+  type="button"
+  data-memory-groups={JSON.stringify(memoryGroups)}
+  aria-describedby="random-memory-hint"
+>
+  <i class="fa-solid fa-shuffle" aria-hidden="true"></i>
+  <span>随便看看</span>
+</button>
+<span class="sr-only" id="random-memory-hint">随机打开一张照片、一篇文章或一个时间节点</span>
+<span class="sr-only" id="random-memory-status" aria-live="polite"></span>
+<dialog class="random-photo-dialog" id="random-photo-dialog" aria-labelledby="random-photo-caption">
+  <button class="random-photo-close" type="button" aria-label="关闭照片">
+    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+  </button>
+  <figure>
+    <img id="random-photo-image" alt="" />
+    <figcaption id="random-photo-caption"></figcaption>
+  </figure>
+</dialog>
+
+<script>
+  interface MemoryItem {
+    href: string;
+    title: string;
+    caption?: string;
+  }
+
+  interface MemoryGroup {
+    type: "photo" | "article" | "timeline";
+    items: MemoryItem[];
+  }
+
+  const button = document.querySelector<HTMLButtonElement>("#random-memory-button");
+  const status = document.querySelector<HTMLElement>("#random-memory-status");
+  const photoDialog = document.querySelector<HTMLDialogElement>("#random-photo-dialog");
+  const photoImage = document.querySelector<HTMLImageElement>("#random-photo-image");
+  const photoCaption = document.querySelector<HTMLElement>("#random-photo-caption");
+  const photoClose = document.querySelector<HTMLButtonElement>(".random-photo-close");
+  let previousHref = "";
+
+  photoClose?.addEventListener("click", () => photoDialog?.close());
+  photoDialog?.addEventListener("click", (event) => {
+    if (event.target === photoDialog) photoDialog.close();
+  });
+  photoDialog?.addEventListener("close", () => photoImage?.removeAttribute("src"));
+
+  button?.addEventListener("click", () => {
+    const groups = JSON.parse(button.dataset.memoryGroups ?? "[]") as MemoryGroup[];
+    const availableGroups = groups.filter((group) => group.items.length > 0);
+    if (availableGroups.length === 0) return;
+
+    const group = availableGroups[Math.floor(Math.random() * availableGroups.length)];
+    const candidates = group.items.filter((item) => item.href !== previousHref);
+    const pool = candidates.length > 0 ? candidates : group.items;
+    const item = pool[Math.floor(Math.random() * pool.length)];
+    previousHref = item.href;
+
+    if (status) status.textContent = `这次抽到：${item.title}`;
+
+    if (group.type === "photo") {
+      if (photoDialog && photoImage && photoCaption && typeof photoDialog.showModal === "function") {
+        photoImage.src = item.href;
+        photoImage.alt = item.title;
+        photoCaption.textContent = [item.title, item.caption].filter(Boolean).join(" — ");
+        photoDialog.showModal();
+        return;
+      }
+    }
+
+    if (group.type === "article") {
+      window.open(item.href, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    window.location.assign(item.href);
+  });
+</script>
