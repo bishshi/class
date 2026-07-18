@@ -33,6 +33,7 @@ export const navItems = [
   { label: "照片墙", href: "/gallery/" },
   { label: "青春刊物", href: "/articles/" },
   { label: "如今的我们", href: "/people/" },
+  { label: "班级地图", href: "/map/" },
   { label: "综合试卷", href: "/exam/" },
   { label: "留言墙", href: "/messages/" },
   { label: "搜索", href: "/search/" }
