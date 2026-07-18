@@ -3,7 +3,14 @@ export const timelineIntro = {
   text: "把三年里的班级大事按时间放在这里。军训、分班、网课、百日誓师、高考和毕业，都成为了后来回头看时很亮的节点。"
 };
 
-export const timeline = [
+export interface TimelineMoment {
+  date: string;
+  title: string;
+  text: string;
+  href?: string;
+}
+
+export const timeline: TimelineMoment[] = [
   {
     date: "2021年8月",
     title: "进入高中",

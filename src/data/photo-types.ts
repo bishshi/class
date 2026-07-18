@@ -2,6 +2,7 @@ export interface PhotoItem {
   title: string;
   caption: string;
   image: string;
+  date?: string;
 }
 
 export interface PhotoTopic {
