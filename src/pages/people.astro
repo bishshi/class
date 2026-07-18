@@ -12,6 +12,7 @@ import { site } from "../data/site";
         <p class="eyebrow">Classmates</p>
         <h1>{peopleIntro.title}</h1>
         <p>{peopleIntro.text}</p>
+        <a class="hero-inline-link" href="/map/"><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i> 查看班级地图</a>
       </div>
     </section>
 
@@ -32,6 +33,7 @@ import { site } from "../data/site";
             <li><strong>照片：</strong><code>photo</code> 可留空；如需放照片，将图片放入 <code>public</code> 后填写以 <code>/</code> 开头的路径。</li>
             <li><strong>关键词：</strong><code>keywords</code> 是数组，建议保留 1 到 3 个短词，列表页和个人页都会显示。</li>
             <li><strong>个人页：</strong><code>currentStatus</code>、<code>highlight</code>、<code>toPastSelf</code>、<code>favoriteMemory</code> 和 <code>messageToClass</code> 会生成详情内容。</li>
+            <li><strong>班级地图：</strong>只有明确同意公开城市的同学才添加到 <code>src/data/class-map.ts</code>；不要填写地址、学校校区或实时位置。</li>
           </ol>
         </aside>
 

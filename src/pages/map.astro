@@ -1,0 +1,236 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { mapCities, mapStats } from "../data/class-map";
+import { site } from "../data/site";
+import atlas from "cn-atlas/cn-atlas.json";
+import { geoMercator, geoPath } from "d3-geo";
+import { feature } from "topojson-client";
+import type { GeometryCollection, Topology } from "topojson-specification";
+
+const firstCity = mapCities[0];
+const mapWidth = 900;
+const mapHeight = 620;
+const topology = atlas as unknown as Topology;
+const provinceObject = topology.objects.provinces as GeometryCollection;
+const provinceCollection = feature(topology, provinceObject);
+const projection = geoMercator().fitExtent([[48, 42], [mapWidth - 48, mapHeight - 34]], provinceCollection);
+const path = geoPath(projection);
+const activeProvinces = new Set(mapCities.map((city) => city.province));
+const provincePaths = provinceCollection.features.map((province) => {
+  const properties = (province.properties ?? {}) as Record<string, unknown>;
+  return {
+    name: String(properties["地名"] ?? properties.name ?? ""),
+    d: path(province) ?? ""
+  };
+});
+const layoutCityMarkers = () => {
+  const markers = mapCities.map((city) => {
+    const [anchorX, anchorY] = projection([city.longitude, city.latitude]) ?? [0, 0];
+    return { ...city, anchorX, anchorY, x: anchorX, y: anchorY };
+  });
+  const minDistance = markers.length > 18 ? 36 : 44;
+
+  for (let iteration = 0; iteration < 100; iteration += 1) {
+    for (let leftIndex = 0; leftIndex < markers.length; leftIndex += 1) {
+      for (let rightIndex = leftIndex + 1; rightIndex < markers.length; rightIndex += 1) {
+        const left = markers[leftIndex];
+        const right = markers[rightIndex];
+        let deltaX = right.x - left.x;
+        let deltaY = right.y - left.y;
+        let distance = Math.hypot(deltaX, deltaY);
+
+        if (distance >= minDistance) continue;
+        if (distance < 0.01) {
+          const angle = ((leftIndex * 137.5 + rightIndex * 47) * Math.PI) / 180;
+          deltaX = Math.cos(angle);
+          deltaY = Math.sin(angle);
+          distance = 1;
+        }
+
+        const push = (minDistance - distance) * 0.52;
+        const normalX = deltaX / distance;
+        const normalY = deltaY / distance;
+        left.x -= normalX * push;
+        left.y -= normalY * push;
+        right.x += normalX * push;
+        right.y += normalY * push;
+      }
+    }
+
+    markers.forEach((marker) => {
+      marker.x += (marker.anchorX - marker.x) * 0.075;
+      marker.y += (marker.anchorY - marker.y) * 0.075;
+      marker.x = Math.min(mapWidth - 38, Math.max(38, marker.x));
+      marker.y = Math.min(mapHeight - 38, Math.max(38, marker.y));
+    });
+  }
+
+  return markers;
+};
+
+const displayCities = layoutCityMarkers();
+const isDenseMap = displayCities.length > 12;
+---
+
+<BaseLayout title={`班级地图 · ${site.className}`}>
+  <main class="page-main map-page">
+    <section class="page-hero map-hero">
+      <div class="section-inner">
+        <a class="back-link" href="/">返回首页</a>
+        <p class="eyebrow">Where We Are</p>
+        <h1>从同一间教室，走向不同的城市</h1>
+        <p>这里只记录城市，不显示学校校区、住址或实时位置。点击一座城市，看看愿意公开近况的同学。</p>
+      </div>
+    </section>
+
+    <section class="map-section">
+      <div class="section-inner">
+        <div class="map-summary" aria-label="班级地图概览">
+          <div><strong>{mapStats.cityCount}</strong><span>座城市</span></div>
+          <div><strong>{mapStats.provinceCount}</strong><span>个省级地区</span></div>
+          <div><strong>{mapStats.publicPeopleCount}</strong><span>位同学自愿公开</span></div>
+          <p><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> 城市级展示 · 自愿公开 · 随时可撤回</p>
+        </div>
+
+        <div class="class-map-shell">
+          <div class="class-map" aria-label="班级成员城市分布示意图">
+            <div class="map-caption">
+              <span>我们的足迹</span>
+              <small>真实省界 · 城市中心点投影</small>
+            </div>
+            <svg class:list={["map-geo", isDenseMap && "is-dense"]} viewBox={`0 0 ${mapWidth} ${mapHeight}`} role="img" aria-label="中国省级行政区与班级城市分布地图">
+              <defs>
+                <linearGradient id="province-fill" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#fffdf7" />
+                  <stop offset="1" stop-color="#edf3ea" />
+                </linearGradient>
+                <filter id="province-shadow" x="-20%" y="-20%" width="140%" height="150%">
+                  <feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#263d37" flood-opacity="0.10" />
+                </filter>
+              </defs>
+              <g class="province-layer" filter="url(#province-shadow)">
+                {
+                  provincePaths.map((province) => (
+                    <path class:list={["map-province", activeProvinces.has(province.name) && "has-classmate"]} d={province.d}>
+                      <title>{province.name}</title>
+                    </path>
+                  ))
+                }
+              </g>
+              <g class="city-marker-layer">
+                {
+                  displayCities.map((city, index) => (
+                    <g
+                      class:list={["city-marker", index === 0 && "is-active"]}
+                      transform={`translate(${city.x} ${city.y})`}
+                      style={`--city-delay: ${Math.min(index * 55, 660)}ms`}
+                      data-city-key={city.key}
+                      role="button"
+                      tabindex="0"
+                      aria-label={`${city.province}${city.city}，${city.people.length} 位同学`}
+                      aria-pressed={index === 0 ? "true" : "false"}
+                    >
+                      <line
+                        class="city-marker-leader"
+                        x1="0"
+                        y1="0"
+                        x2={city.anchorX - city.x}
+                        y2={city.anchorY - city.y}
+                      />
+                      <circle class="city-marker-halo" r="22" />
+                      <circle class="city-marker-dot" r="16" />
+                      <text class="city-marker-count" text-anchor="middle" y="5">{city.people.length}</text>
+                      <text class="city-marker-name" text-anchor="middle" y="35">{city.city}</text>
+                    </g>
+                  ))
+                }
+              </g>
+            </svg>
+
+            <p class="map-source">省级边界数据：cn-atlas（2023）</p>
+          </div>
+
+          <aside class="city-panel" aria-live="polite">
+            <div class="city-panel-heading">
+              <p class="eyebrow">City</p>
+              <h2 data-city-title>{firstCity?.city ?? "暂无城市"}</h2>
+              <p data-city-subtitle>{firstCity ? `${firstCity.province} · ${firstCity.people.length} 位同学` : "等待同学自愿加入"}</p>
+            </div>
+
+            <div class="city-people" data-city-people>
+              {
+                firstCity?.people.map((person) => (
+                  <a class="map-person" href={`/people/${person.slug}/`}>
+                    <span class="map-person-avatar" style={person.photo ? `--avatar-image: url("${person.photo}")` : ""}>
+                      {person.initial}
+                    </span>
+                    <span>
+                      <strong>{person.name}</strong>
+                      <small>{person.direction}</small>
+                    </span>
+                    <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                  </a>
+                ))
+              }
+            </div>
+
+            <div class="map-privacy-note">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <p><strong>关于位置</strong><span>不采集精确地址与实时定位。名单仅包含明确选择公开的同学。</span></p>
+            </div>
+          </aside>
+        </div>
+
+        <noscript>
+          <div class="city-directory">
+            {mapCities.map((city) => <p><strong>{city.city}</strong>：{city.people.map((person) => person.name).join("、")}</p>)}
+          </div>
+        </noscript>
+      </div>
+    </section>
+  </main>
+
+  <script is:inline define:vars={{ mapCities }}>
+    const cityTitle = document.querySelector("[data-city-title]");
+    const citySubtitle = document.querySelector("[data-city-subtitle]");
+    const cityPeople = document.querySelector("[data-city-people]");
+    const markers = document.querySelectorAll("[data-city-key]");
+
+    const escapeHtml = (value) => String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+    const showCity = (key) => {
+      const city = mapCities.find((item) => item.key === key);
+      if (!city || !cityTitle || !citySubtitle || !cityPeople) return;
+
+      cityTitle.textContent = city.city;
+      citySubtitle.textContent = `${city.province} · ${city.people.length} 位同学`;
+      cityPeople.innerHTML = city.people.map((person) => `
+        <a class="map-person" href="/people/${encodeURIComponent(person.slug)}/">
+          <span class="map-person-avatar"${person.photo ? ` style="--avatar-image: url(&quot;${escapeHtml(person.photo)}&quot;)"` : ""}>${escapeHtml(person.initial)}</span>
+          <span><strong>${escapeHtml(person.name)}</strong><small>${escapeHtml(person.direction)}</small></span>
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </a>
+      `).join("");
+
+      markers.forEach((marker) => {
+        const isActive = marker.getAttribute("data-city-key") === key;
+        marker.classList.toggle("is-active", isActive);
+        marker.setAttribute("aria-pressed", String(isActive));
+      });
+    };
+
+    markers.forEach((marker) => {
+      marker.addEventListener("click", () => showCity(marker.getAttribute("data-city-key")));
+      marker.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        showCity(marker.getAttribute("data-city-key"));
+      });
+    });
+  </script>
+</BaseLayout>
