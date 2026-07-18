@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/build-pwa.mjs",
+    "build": "astro build && node scripts/encrypt-font.mjs && node scripts/build-pwa.mjs",
     "preview": "astro preview",
     "search:key": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/create-typesense-search-key.mjs",
     "search:sync": "node --env-file-if-exists=.env --env-file-if-exists=.env.local --import tsx scripts/sync-typesense.ts"
@@ -19,9 +19,12 @@
     "typescript": "^6.0.3"
   },
   "devDependencies": {
+    "@openfonts/noto-sans-sc_chinese-simplified": "^1.44.9",
     "@types/d3-geo": "^3.1.0",
     "@types/node": "^26.1.1",
     "@types/topojson-client": "^3.1.5",
+    "parse5": "^8.0.0",
+    "subset-font": "^2.5.0",
     "tsx": "^4.23.1"
   }
 }

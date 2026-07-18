@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const projectRoot = fileURLToPath(new URL("../", import.meta.url));
 const distRoot = path.join(projectRoot, "dist");
 const serviceWorkerPath = path.join(distRoot, "sw.js");
-const precacheExtensions = new Set([".html", ".css", ".js", ".webmanifest"]);
+const precacheExtensions = new Set([".html", ".css", ".js", ".webmanifest", ".woff2"]);
 const precacheAssets = new Set([
   "assets/campus-hero.png",
   "icons/apple-touch-icon.png",
