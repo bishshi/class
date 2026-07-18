@@ -282,11 +282,11 @@
     });
 
     calendarYearButton?.addEventListener("click", () => {
-      setJumpOpen(jumpForm?.hidden ?? true, "year");
+      setJumpOpen(jumpForm?.hasAttribute("hidden") ?? true, "year");
     });
 
     calendarMonthButton?.addEventListener("click", () => {
-      setJumpOpen(jumpForm?.hidden ?? true, "month");
+      setJumpOpen(jumpForm?.hasAttribute("hidden") ?? true, "month");
     });
 
     jumpForm?.addEventListener("submit", (event) => {
