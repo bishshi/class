@@ -3,12 +3,39 @@
     <div class="memory-calendar" aria-label="记忆日历">
       <div class="memory-calendar-head">
         <div class="memory-calendar-nav">
-          <button type="button" data-calendar-previous aria-label="上一个月">←</button>
-          <strong data-calendar-label aria-live="polite">本月</strong>
-          <button type="button" data-calendar-next aria-label="下一个月">→</button>
+          <button class="memory-calendar-step" type="button" data-calendar-previous aria-label="上一个月">←</button>
+          <div class="memory-calendar-period" aria-label="快速选择年月" aria-live="polite">
+            <button type="button" data-calendar-year aria-expanded="false" aria-controls="memory-calendar-jump">2026年</button>
+            <button type="button" data-calendar-month aria-expanded="false" aria-controls="memory-calendar-jump">本月</button>
+          </div>
+          <button class="memory-calendar-step" type="button" data-calendar-next aria-label="下一个月">→</button>
         </div>
         <button class="memory-calendar-today" type="button" data-calendar-today>回到今天</button>
       </div>
+      <form class="memory-calendar-jump" id="memory-calendar-jump" data-calendar-jump hidden>
+        <label>
+          <span>年份</span>
+          <input type="number" min="1900" max="2100" step="1" inputmode="numeric" data-calendar-year-input required />
+        </label>
+        <label>
+          <span>月份</span>
+          <select data-calendar-month-select required>
+            <option value="1">1月</option>
+            <option value="2">2月</option>
+            <option value="3">3月</option>
+            <option value="4">4月</option>
+            <option value="5">5月</option>
+            <option value="6">6月</option>
+            <option value="7">7月</option>
+            <option value="8">8月</option>
+            <option value="9">9月</option>
+            <option value="10">10月</option>
+            <option value="11">11月</option>
+            <option value="12">12月</option>
+          </select>
+        </label>
+        <button type="submit">跳转</button>
+      </form>
       <div class="memory-calendar-weekdays" aria-hidden="true">
         <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
       </div>
@@ -72,7 +99,11 @@
     const summary = root.querySelector<HTMLElement>("[data-memory-summary]");
     const grid = root.querySelector<HTMLElement>("[data-memory-grid]");
     const empty = root.querySelector<HTMLElement>("[data-memory-empty]");
-    const calendarLabel = root.querySelector<HTMLElement>("[data-calendar-label]");
+    const calendarYearButton = root.querySelector<HTMLButtonElement>("[data-calendar-year]");
+    const calendarMonthButton = root.querySelector<HTMLButtonElement>("[data-calendar-month]");
+    const jumpForm = root.querySelector<HTMLFormElement>("[data-calendar-jump]");
+    const yearInput = root.querySelector<HTMLInputElement>("[data-calendar-year-input]");
+    const monthSelect = root.querySelector<HTMLSelectElement>("[data-calendar-month-select]");
     const calendarGrid = root.querySelector<HTMLElement>("[data-calendar-grid]");
     const previousButton = root.querySelector<HTMLButtonElement>("[data-calendar-previous]");
     const nextButton = root.querySelector<HTMLButtonElement>("[data-calendar-next]");
@@ -84,6 +115,26 @@
     const getMemories = (month: number, day: number) => {
       const monthDay = getMonthDay(month, day);
       return onThisDayMemories.filter((memory) => memory.monthDay === monthDay);
+    };
+
+    const setJumpOpen = (open: boolean, focusTarget?: "year" | "month") => {
+      if (!jumpForm) return;
+      jumpForm.hidden = !open;
+      calendarYearButton?.setAttribute("aria-expanded", String(open));
+      calendarMonthButton?.setAttribute("aria-expanded", String(open));
+
+      if (open) {
+        if (yearInput) yearInput.value = String(calendarYear);
+        if (monthSelect) monthSelect.value = String(calendarMonth);
+        window.requestAnimationFrame(() => {
+          if (focusTarget === "year") {
+            yearInput?.focus();
+            yearInput?.select();
+          } else {
+            monthSelect?.focus();
+          }
+        });
+      }
     };
 
     const renderMemories = (month: number, day: number) => {
@@ -165,7 +216,8 @@
     };
 
     const renderCalendar = () => {
-      if (calendarLabel) calendarLabel.textContent = `${calendarYear}年${calendarMonth}月`;
+      if (calendarYearButton) calendarYearButton.textContent = `${calendarYear}年`;
+      if (calendarMonthButton) calendarMonthButton.textContent = `${calendarMonth}月`;
       if (!calendarGrid) return;
 
       const fragment = document.createDocumentFragment();
@@ -225,10 +277,30 @@
       if (!button) return;
 
       renderMemories(calendarMonth, Number(button.dataset.calendarDay));
+      setJumpOpen(false);
+      renderCalendar();
+    });
+
+    calendarYearButton?.addEventListener("click", () => {
+      setJumpOpen(jumpForm?.hidden ?? true, "year");
+    });
+
+    calendarMonthButton?.addEventListener("click", () => {
+      setJumpOpen(jumpForm?.hidden ?? true, "month");
+    });
+
+    jumpForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!jumpForm.reportValidity() || !yearInput || !monthSelect) return;
+
+      calendarYear = Number(yearInput.value);
+      calendarMonth = Number(monthSelect.value);
+      setJumpOpen(false);
       renderCalendar();
     });
 
     previousButton?.addEventListener("click", () => {
+      setJumpOpen(false);
       calendarMonth -= 1;
       if (calendarMonth === 0) {
         calendarMonth = 12;
@@ -238,6 +310,7 @@
     });
 
     nextButton?.addEventListener("click", () => {
+      setJumpOpen(false);
       calendarMonth += 1;
       if (calendarMonth === 13) {
         calendarMonth = 1;
@@ -247,10 +320,26 @@
     });
 
     todayButton?.addEventListener("click", () => {
+      setJumpOpen(false);
       calendarYear = currentYear;
       calendarMonth = todayMonth;
       renderMemories(todayMonth, todayDay);
       renderCalendar();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (jumpForm?.hidden) return;
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (jumpForm?.contains(target) || calendarYearButton?.contains(target) || calendarMonthButton?.contains(target)) return;
+      setJumpOpen(false);
+    });
+
+    root.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && jumpForm && !jumpForm.hidden) {
+        setJumpOpen(false);
+        calendarYearButton?.focus();
+      }
     });
 
     renderMemories(todayMonth, todayDay);

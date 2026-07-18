@@ -275,12 +275,6 @@ h1 {
   gap: 10px;
 }
 
-.memory-calendar-nav strong {
-  min-width: 126px;
-  text-align: center;
-  font-size: 18px;
-}
-
 .memory-calendar-nav button,
 .memory-calendar-today {
   min-height: 38px;
@@ -293,10 +287,42 @@ h1 {
   transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
 }
 
-.memory-calendar-nav button {
+.memory-calendar-step {
   width: 38px;
+  flex: 0 0 38px;
   padding: 0;
   border-radius: 50%;
+}
+
+.memory-calendar-period {
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+}
+
+.memory-calendar-period button {
+  min-width: 0;
+  min-height: 38px;
+  padding: 4px 7px;
+  border-color: transparent;
+  border-radius: 7px;
+  background: transparent;
+  font-size: 18px;
+}
+
+.memory-calendar-period button::after {
+  content: "⌄";
+  margin-left: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.memory-calendar-period button:hover,
+.memory-calendar-period button[aria-expanded="true"] {
+  border-color: rgba(55, 109, 90, 0.2);
+  background: rgba(55, 109, 90, 0.08);
+  color: var(--green);
 }
 
 .memory-calendar-today {
@@ -307,11 +333,74 @@ h1 {
   font-size: 13px;
 }
 
-.memory-calendar-nav button:hover,
+.memory-calendar-step:hover,
 .memory-calendar-today:hover {
   border-color: var(--green);
   background: var(--green);
   color: #fff;
+}
+
+.memory-calendar-period button:hover::after,
+.memory-calendar-period button[aria-expanded="true"]::after {
+  color: currentColor;
+}
+
+.memory-calendar-jump {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: -4px 0 16px;
+  padding: 12px;
+  border: 1px solid rgba(55, 109, 90, 0.2);
+  border-radius: 10px;
+  background: #fffdf7;
+  box-shadow: 0 12px 28px rgba(39, 55, 52, 0.1);
+}
+
+.memory-calendar-jump[hidden] {
+  display: none;
+}
+
+.memory-calendar-jump label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.memory-calendar-jump input,
+.memory-calendar-jump select {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  outline: none;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+}
+
+.memory-calendar-jump input:focus,
+.memory-calendar-jump select:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(55, 109, 90, 0.1);
+}
+
+.memory-calendar-jump > button {
+  grid-column: 1 / -1;
+  min-height: 38px;
+  border: 0;
+  border-radius: 7px;
+  background: var(--green);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .memory-calendar-weekdays,
