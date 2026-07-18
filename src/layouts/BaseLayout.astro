@@ -26,7 +26,17 @@ const buildTime = new Intl.DateTimeFormat("zh-CN", {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="referrer" content="no-referrer" />
+    <meta name="description" content={site.subtitle} />
+    <meta name="theme-color" content="#376d5a" />
+    <meta name="application-name" content={site.className} />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content={site.className} />
     <title>{title}</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/pwa-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"
@@ -126,6 +136,15 @@ const buildTime = new Intl.DateTimeFormat("zh-CN", {
         animated: true,
         dragToClose: true
       });
+    </script>
+    <script is:inline>
+      if ("serviceWorker" in navigator && window.isSecureContext) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch((error) => {
+            console.warn("Service Worker 注册失败", error);
+          });
+        });
+      }
     </script>
   </body>
 </html>

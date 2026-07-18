@@ -1,0 +1,44 @@
+{
+  "id": "/",
+  "name": "2024届612班纪念网站",
+  "short_name": "612班",
+  "description": "保存2024届612班共同走过的校园时光，也记录毕业后的我们。",
+  "lang": "zh-CN",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fffdf7",
+  "theme_color": "#376d5a",
+  "categories": ["education", "social"],
+  "icons": [
+    {
+      "src": "/icons/pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "三年时间线",
+      "short_name": "时间线",
+      "url": "/timeline/"
+    },
+    {
+      "name": "照片墙",
+      "short_name": "照片",
+      "url": "/gallery/"
+    },
+    {
+      "name": "如今的我们",
+      "short_name": "同学",
+      "url": "/people/"
+    }
+  ]
+}
