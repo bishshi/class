@@ -11,6 +11,7 @@
 - 综合试卷：把纪念试卷做成网页，并保留 Word 原卷下载。
 - 留言墙：接入 Twikoo 后可在页面中留言。
 - 全站搜索：通过 Typesense 搜索并筛选时间线、照片、文章和同学公开资料。
+- PWA：支持添加到主屏幕，并离线访问站点外壳及已浏览的同源内容。
 
 ## 技术栈
 
@@ -36,6 +37,8 @@ npm run build    # 构建静态站点到 dist
 npm run preview  # 预览构建结果
 npm run search:sync # 将公开内容同步到 Typesense
 ```
+
+`npm run build` 会在 Astro 构建完成后生成带内容版本号的 Service Worker，并预缓存页面、样式、脚本、应用图标和首页主视觉。照片等大体积资源采用访问后缓存，第三方接口始终走网络。
 
 ## Typesense 全站搜索
 
