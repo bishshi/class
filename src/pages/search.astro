@@ -1,0 +1,297 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../data/site";
+
+const typesenseConfig = {
+  host: import.meta.env.PUBLIC_TYPESENSE_HOST ?? "",
+  port: import.meta.env.PUBLIC_TYPESENSE_PORT ?? "443",
+  protocol: import.meta.env.PUBLIC_TYPESENSE_PROTOCOL ?? "https",
+  apiKey: import.meta.env.PUBLIC_TYPESENSE_SEARCH_API_KEY ?? "",
+  collection: import.meta.env.PUBLIC_TYPESENSE_COLLECTION ?? "class_memories"
+};
+
+const isConfigured = Boolean(typesenseConfig.host && typesenseConfig.apiKey);
+---
+
+<BaseLayout title={`全站搜索 · ${site.className}`}>
+  <main>
+    <section class="page-hero search-hero">
+      <div class="section-heading">
+        <div>
+          <a class="back-link" href="/">返回首页</a>
+          <p class="eyebrow">Search Class 612</p>
+          <h1>全站搜索</h1>
+          <p>在时间线、照片、青春刊物和同学近况中寻找一段记忆。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="search-section" aria-labelledby="search-title">
+      <h2 id="search-title" class="sr-only">搜索班级记忆</h2>
+      {
+        isConfigured ? (
+          <div class="search-app" data-search-app>
+            <form class="search-form" role="search" data-search-form>
+              <label for="site-search">关键词</label>
+              <div class="search-input-row">
+                <input
+                  id="site-search"
+                  name="q"
+                  type="search"
+                  placeholder="试试“毕业”“百日誓师”或同学姓名"
+                  autocomplete="off"
+                  data-search-input
+                />
+                <button class="button primary" type="submit">搜索</button>
+              </div>
+            </form>
+
+            <div class="search-filters" aria-label="搜索筛选">
+              <label>
+                内容类型
+                <select data-filter="type">
+                  <option value="">全部类型</option>
+                </select>
+              </label>
+              <label>
+                分类
+                <select data-filter="category">
+                  <option value="">全部分类</option>
+                </select>
+              </label>
+              <label>
+                年份
+                <select data-filter="year">
+                  <option value="">全部年份</option>
+                </select>
+              </label>
+              <button class="search-clear" type="button" data-search-clear>清除筛选</button>
+            </div>
+
+            <p class="search-status" aria-live="polite" data-search-status>正在载入记忆……</p>
+            <div class="search-results" data-search-results></div>
+            <nav class="search-pagination" aria-label="搜索结果分页" data-search-pagination></nav>
+          </div>
+        ) : (
+          <div class="search-config-note">
+            <p class="eyebrow">Typesense 待配置</p>
+            <h2>搜索服务还没有连接</h2>
+            <p>
+              请参考 <code>.env.example</code> 配置公开的 Search-only Key，并运行 <code>npm run search:sync</code> 建立索引。
+            </p>
+          </div>
+        )
+      }
+    </section>
+  </main>
+
+  {
+    isConfigured && (
+      <script is:inline define:vars={{ typesenseConfig }}>
+        const app = document.querySelector("[data-search-app]");
+        const form = app?.querySelector("[data-search-form]");
+        const input = app?.querySelector("[data-search-input]");
+        const status = app?.querySelector("[data-search-status]");
+        const results = app?.querySelector("[data-search-results]");
+        const pagination = app?.querySelector("[data-search-pagination]");
+        const clearButton = app?.querySelector("[data-search-clear]");
+        const filters = [...(app?.querySelectorAll("[data-filter]") ?? [])];
+        const perPage = 12;
+        let page = 1;
+        let debounceTimer;
+        let requestController;
+
+        const origin = `${typesenseConfig.protocol}://${typesenseConfig.host}${
+          (typesenseConfig.protocol === "https" && typesenseConfig.port === "443") ||
+          (typesenseConfig.protocol === "http" && typesenseConfig.port === "80")
+            ? ""
+            : `:${typesenseConfig.port}`
+        }`;
+
+        const setSelectOptions = (select, values) => {
+          const current = select.value;
+          const firstOption = select.options[0];
+          select.replaceChildren(firstOption);
+          values.forEach(({ value, count }) => {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = `${value}（${count}）`;
+            select.append(option);
+          });
+          select.value = current;
+        };
+
+        const updateFacets = (facetCounts = []) => {
+          filters.forEach((select) => {
+            const facet = facetCounts.find((item) => item.field_name === select.dataset.filter);
+            const values = (facet?.counts ?? []).map((item) => ({
+              value: String(item.value),
+              count: item.count
+            }));
+            if (select.dataset.filter === "year") {
+              values.sort((a, b) => Number(b.value) - Number(a.value));
+            }
+            setSelectOptions(select, values);
+          });
+        };
+
+        const renderResults = (hits = []) => {
+          results.replaceChildren();
+          hits.forEach(({ document: item }) => {
+            const article = document.createElement("article");
+            article.className = "search-result-card";
+
+            if (item.image) {
+              const image = document.createElement("img");
+              image.src = item.image;
+              image.alt = "";
+              image.loading = "lazy";
+              article.append(image);
+            }
+
+            const body = document.createElement("div");
+            const meta = document.createElement("p");
+            meta.className = "search-result-meta";
+            meta.textContent = [item.type, item.category, item.year].filter(Boolean).join(" · ");
+
+            const title = document.createElement("h2");
+            const link = document.createElement("a");
+            link.href = item.url;
+            link.textContent = item.title;
+            if (/^https?:\/\//.test(item.url)) {
+              link.target = "_blank";
+              link.rel = "noreferrer";
+            }
+            title.append(link);
+
+            const content = document.createElement("p");
+            content.textContent = item.content;
+            body.append(meta, title, content);
+            article.append(body);
+            results.append(article);
+          });
+        };
+
+        const renderPagination = (found) => {
+          pagination.replaceChildren();
+          const totalPages = Math.ceil(found / perPage);
+          if (totalPages <= 1) return;
+
+          const makeButton = (label, nextPage, disabled = false) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = label;
+            button.disabled = disabled;
+            button.addEventListener("click", () => {
+              page = nextPage;
+              search();
+              app.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+            return button;
+          };
+
+          pagination.append(
+            makeButton("上一页", page - 1, page <= 1),
+            document.createTextNode(`第 ${page} / ${totalPages} 页`),
+            makeButton("下一页", page + 1, page >= totalPages)
+          );
+        };
+
+        const updateUrl = () => {
+          const params = new URLSearchParams();
+          if (input.value.trim()) params.set("q", input.value.trim());
+          filters.forEach((select) => {
+            if (select.value) params.set(select.dataset.filter, select.value);
+          });
+          if (page > 1) params.set("page", String(page));
+          history.replaceState(null, "", `${location.pathname}${params.size ? `?${params}` : ""}`);
+        };
+
+        const search = async () => {
+          requestController?.abort();
+          requestController = new AbortController();
+          status.textContent = "正在寻找记忆……";
+
+          const params = new URLSearchParams({
+            q: input.value.trim() || "*",
+            query_by: "title,content,tags",
+            query_by_weights: "5,2,3",
+            facet_by: "type,category,year",
+            page: String(page),
+            per_page: String(perPage),
+            include_fields: "title,content,type,category,tags,year,url,image"
+          });
+          const conditions = filters
+            .filter((select) => select.value)
+            .map((select) => `${select.dataset.filter}:=${select.value}`);
+          if (conditions.length) params.set("filter_by", conditions.join(" && "));
+
+          try {
+            const response = await fetch(
+              `${origin}/collections/${encodeURIComponent(typesenseConfig.collection)}/documents/search?${params}`,
+              {
+                headers: { "X-TYPESENSE-API-KEY": typesenseConfig.apiKey },
+                signal: requestController.signal
+              }
+            );
+            if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);
+            const data = await response.json();
+            renderResults(data.hits);
+            updateFacets(data.facet_counts);
+            renderPagination(data.found);
+            status.textContent = data.found
+              ? `找到 ${data.found} 段相关记忆`
+              : "没有找到相关内容，换个关键词试试吧。";
+            updateUrl();
+          } catch (error) {
+            if (error.name === "AbortError") return;
+            console.error(error);
+            results.replaceChildren();
+            pagination.replaceChildren();
+            status.textContent = "搜索服务暂时无法访问，请稍后重试。";
+          }
+        };
+
+        const initialParams = new URLSearchParams(location.search);
+        input.value = initialParams.get("q") ?? "";
+        page = Math.max(1, Number(initialParams.get("page")) || 1);
+        filters.forEach((select) => {
+          const value = initialParams.get(select.dataset.filter);
+          if (value) {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = value;
+            select.append(option);
+            select.value = value;
+          }
+        });
+
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          page = 1;
+          search();
+        });
+        input.addEventListener("input", () => {
+          clearTimeout(debounceTimer);
+          page = 1;
+          debounceTimer = setTimeout(search, 280);
+        });
+        filters.forEach((select) =>
+          select.addEventListener("change", () => {
+            page = 1;
+            search();
+          })
+        );
+        clearButton.addEventListener("click", () => {
+          input.value = "";
+          filters.forEach((select) => (select.value = ""));
+          page = 1;
+          search();
+          input.focus();
+        });
+
+        search();
+      </script>
+    )
+  }
+</BaseLayout>
