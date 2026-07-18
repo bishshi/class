@@ -198,6 +198,437 @@ h1 {
   font-size: 14px;
 }
 
+.on-this-day-band {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 8% 14%, rgba(232, 168, 76, 0.2), transparent 24%),
+    linear-gradient(135deg, #f6f0df, #fffdf7 48%, #eef4e9);
+}
+
+.on-this-day-band::after {
+  content: "";
+  position: absolute;
+  right: -80px;
+  bottom: -110px;
+  width: 280px;
+  height: 280px;
+  border: 1px solid rgba(55, 109, 90, 0.12);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 34px rgba(55, 109, 90, 0.035),
+    0 0 0 68px rgba(55, 109, 90, 0.025);
+  pointer-events: none;
+}
+
+.on-this-day-shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(0, 2fr);
+  gap: clamp(28px, 5vw, 64px);
+  align-items: start;
+}
+
+.on-this-day-heading {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 30px;
+}
+
+.on-this-day-heading .eyebrow {
+  color: var(--coral);
+}
+
+.on-this-day-heading p:last-child {
+  margin: 0;
+  color: var(--muted);
+}
+
+.memory-calendar {
+  position: sticky;
+  top: 26px;
+  padding: 18px;
+  border: 1px solid rgba(31, 43, 42, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 8px 28px rgba(39, 55, 52, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+.memory-calendar-head,
+.memory-calendar-nav {
+  display: flex;
+  align-items: center;
+}
+
+.memory-calendar-head {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.memory-calendar-nav {
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.memory-calendar-nav button,
+.memory-calendar-today {
+  min-height: 38px;
+  border: 1px solid var(--line);
+  background: #fffdf7;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.memory-calendar-step {
+  width: 38px;
+  flex: 0 0 38px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.memory-calendar-period {
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+}
+
+.memory-calendar-period button {
+  min-width: 0;
+  min-height: 38px;
+  padding: 4px 7px;
+  border-color: transparent;
+  border-radius: 7px;
+  background: transparent;
+  font-size: 18px;
+}
+
+.memory-calendar-period button::after {
+  content: "⌄";
+  margin-left: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.memory-calendar-period button:hover,
+.memory-calendar-period button[aria-expanded="true"] {
+  border-color: rgba(55, 109, 90, 0.2);
+  background: rgba(55, 109, 90, 0.08);
+  color: var(--green);
+}
+
+.memory-calendar-today {
+  width: 100%;
+  padding: 7px 13px;
+  border-radius: 999px;
+  color: var(--green);
+  font-size: 13px;
+}
+
+.memory-calendar-step:hover,
+.memory-calendar-today:hover {
+  border-color: var(--green);
+  background: var(--green);
+  color: #fff;
+}
+
+.memory-calendar-period button:hover::after,
+.memory-calendar-period button[aria-expanded="true"]::after {
+  color: currentColor;
+}
+
+.memory-calendar-jump {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: -4px 0 16px;
+  padding: 12px;
+  border: 1px solid rgba(55, 109, 90, 0.2);
+  border-radius: 10px;
+  background: #fffdf7;
+  box-shadow: 0 12px 28px rgba(39, 55, 52, 0.1);
+}
+
+.memory-calendar-jump[hidden] {
+  display: none;
+}
+
+.memory-calendar-jump label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.memory-calendar-jump input,
+.memory-calendar-jump select {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  outline: none;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+}
+
+.memory-calendar-jump input:focus,
+.memory-calendar-jump select:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(55, 109, 90, 0.1);
+}
+
+.memory-calendar-jump > button {
+  grid-column: 1 / -1;
+  min-height: 38px;
+  border: 0;
+  border-radius: 7px;
+  background: var(--green);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.memory-calendar-weekdays,
+.memory-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.memory-calendar-weekdays {
+  margin-bottom: 7px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.memory-calendar-day,
+.memory-calendar-spacer {
+  min-width: 0;
+  aspect-ratio: 1.45;
+}
+
+.memory-calendar-day {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 3px;
+  padding: 4px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: rgba(244, 247, 238, 0.72);
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+
+.memory-calendar-day:hover {
+  transform: translateY(-1px);
+  border-color: rgba(55, 109, 90, 0.3);
+  color: var(--green);
+  background: #fff;
+}
+
+.memory-calendar-day.has-memory {
+  color: var(--ink);
+  background: rgba(232, 168, 76, 0.12);
+  font-weight: 800;
+}
+
+.memory-calendar-day i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--coral);
+}
+
+.memory-calendar-day.is-today {
+  border-color: rgba(55, 109, 90, 0.55);
+}
+
+.memory-calendar-day.is-selected {
+  border-color: var(--green);
+  background: var(--green);
+  color: #fffdf7;
+  box-shadow: 0 6px 16px rgba(55, 109, 90, 0.2);
+}
+
+.memory-calendar-day.is-selected i {
+  background: #f3cf8b;
+}
+
+.memory-calendar-legend {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.memory-calendar-legend > span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--coral);
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.memory-card {
+  height: 220px;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid rgba(31, 43, 42, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 8px 28px rgba(39, 55, 52, 0.06);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.memory-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(55, 109, 90, 0.34);
+  box-shadow: 0 16px 38px rgba(39, 55, 52, 0.12);
+}
+
+.memory-card > img,
+.memory-card-visual {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+}
+
+.memory-card-visual {
+  display: grid;
+  place-items: center;
+  color: rgba(255, 253, 247, 0.9);
+  background: linear-gradient(135deg, rgba(55, 109, 90, 0.94), rgba(69, 111, 148, 0.88));
+  font-family: STKaiti, KaiTi, serif;
+  font-size: 48px;
+}
+
+.memory-card-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.memory-card-meta {
+  color: var(--coral);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.memory-card-copy > strong {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-top: 7px;
+  font-size: 19px;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.memory-card-text {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.memory-card-action {
+  margin-top: auto;
+  padding-top: 14px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.memory-empty {
+  min-height: 190px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 22px;
+  align-items: center;
+  padding: clamp(24px, 4vw, 38px);
+  border: 1px dashed rgba(55, 109, 90, 0.3);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.memory-empty[hidden],
+.memory-grid[hidden] {
+  display: none;
+}
+
+.memory-empty-mark {
+  color: var(--sun);
+  font-size: 48px;
+}
+
+.memory-empty h3 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.memory-empty p,
+.memory-noscript {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.memory-empty-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 18px;
+}
+
+.memory-empty-links a {
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 800;
+}
+
 main {
   overflow: hidden;
 }
@@ -2147,7 +2578,21 @@ h2 {
   transform: translate(-50%, 0);
 }
 
+@media (max-width: 1040px) and (min-width: 821px) {
+  .memory-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .memory-calendar {
+    position: static;
+  }
+}
+
 @media (max-width: 820px) {
+  .memory-calendar {
+    position: static;
+  }
+
   body:has(.score-sidebar) {
     padding-bottom: 86px;
   }
@@ -2227,6 +2672,8 @@ h2 {
 
   .stats,
   .section-title,
+  .on-this-day-shell,
+  .on-this-day-heading,
   .message-wall,
   .twikoo-sticky-wall .tk-comments,
   .twikoo-sticky-wall .tk-comments-container,
@@ -2428,6 +2875,45 @@ h2 {
     padding-inline: 14px;
   }
 
+  .memory-card {
+    height: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .memory-card > img,
+  .memory-card-visual {
+    height: 190px;
+    min-height: 0;
+  }
+
+  .memory-calendar {
+    margin-inline: -4px;
+    padding: 13px 9px;
+  }
+
+  .memory-calendar-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .memory-calendar-nav {
+    justify-content: space-between;
+  }
+
+  .memory-calendar-today {
+    width: 100%;
+  }
+
+  .memory-calendar-weekdays,
+  .memory-calendar-grid {
+    gap: 4px;
+  }
+
+  .memory-calendar-day,
+  .memory-calendar-spacer {
+    aspect-ratio: 1;
+  }
+
   .hero-actions {
     display: grid;
   }
@@ -2440,6 +2926,10 @@ h2 {
 
   .stat {
     min-height: auto;
+  }
+
+  .memory-grid {
+    grid-template-columns: 1fr;
   }
 
   .photo-card,

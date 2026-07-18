@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import OnThisDay from "../components/OnThisDay.astro";
 import { galleryIntro, photoTopics } from "../data/photos";
 import { featuredMessage, messages, messagesIntro } from "../data/messages";
 import { people, peopleIntro } from "../data/people";
@@ -41,6 +42,8 @@ const previewPeople = people.slice(0, 6);
   </aside>
 
   <main>
+    <OnThisDay />
+
     <section id="timeline">
       <div class="section-inner">
         <div class="section-title">

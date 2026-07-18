@@ -1,0 +1,348 @@
+<section class="on-this-day-band" aria-labelledby="on-this-day-title">
+  <div class="section-inner on-this-day-shell" data-on-this-day>
+    <div class="memory-calendar" aria-label="记忆日历">
+      <div class="memory-calendar-head">
+        <div class="memory-calendar-nav">
+          <button class="memory-calendar-step" type="button" data-calendar-previous aria-label="上一个月">←</button>
+          <div class="memory-calendar-period" aria-label="快速选择年月" aria-live="polite">
+            <button type="button" data-calendar-year aria-expanded="false" aria-controls="memory-calendar-jump">2026年</button>
+            <button type="button" data-calendar-month aria-expanded="false" aria-controls="memory-calendar-jump">本月</button>
+          </div>
+          <button class="memory-calendar-step" type="button" data-calendar-next aria-label="下一个月">→</button>
+        </div>
+        <button class="memory-calendar-today" type="button" data-calendar-today>回到今天</button>
+      </div>
+      <form class="memory-calendar-jump" id="memory-calendar-jump" data-calendar-jump hidden>
+        <label>
+          <span>年份</span>
+          <input type="number" min="1900" max="2100" step="1" inputmode="numeric" data-calendar-year-input required />
+        </label>
+        <label>
+          <span>月份</span>
+          <select data-calendar-month-select required>
+            <option value="1">1月</option>
+            <option value="2">2月</option>
+            <option value="3">3月</option>
+            <option value="4">4月</option>
+            <option value="5">5月</option>
+            <option value="6">6月</option>
+            <option value="7">7月</option>
+            <option value="8">8月</option>
+            <option value="9">9月</option>
+            <option value="10">10月</option>
+            <option value="11">11月</option>
+            <option value="12">12月</option>
+          </select>
+        </label>
+        <button type="submit">跳转</button>
+      </form>
+      <div class="memory-calendar-weekdays" aria-hidden="true">
+        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+      </div>
+      <div class="memory-calendar-grid" data-calendar-grid></div>
+      <p class="memory-calendar-legend"><span aria-hidden="true"></span>圆点表示这一天收录了班级记忆</p>
+    </div>
+
+    <div class="on-this-day-content">
+      <div class="on-this-day-heading">
+        <div>
+          <p class="eyebrow">ON THIS DAY · 那年今日</p>
+          <h2 id="on-this-day-title" data-memory-title>今天，记忆翻到了这一页</h2>
+        </div>
+        <p data-memory-summary aria-live="polite">正在寻找同月同日的班级记忆……</p>
+      </div>
+
+      <div class="memory-grid" data-memory-grid aria-live="polite" aria-busy="true"></div>
+
+      <div class="memory-empty" data-memory-empty hidden>
+        <span class="memory-empty-mark" aria-hidden="true">✦</span>
+        <div>
+          <h3>这一天还没有被写进纪念册</h3>
+          <p>也许只是故事还没整理好。先从其他日期里随手翻一页吧。</p>
+          <nav class="memory-empty-links" aria-label="浏览其他班级记忆">
+            <a href="/timeline/">班级时间线</a>
+            <a href="/gallery/">照片墙</a>
+            <a href="/articles/">文章归档</a>
+          </nav>
+        </div>
+      </div>
+
+      <noscript>
+        <p class="memory-noscript">启用 JavaScript 后，这里会根据北京时间自动展示当天的班级记忆。</p>
+      </noscript>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { onThisDayMemories } from "../data/on-this-day";
+
+  const root = document.querySelector<HTMLElement>("[data-on-this-day]");
+
+  if (root) {
+    const dateParts = new Intl.DateTimeFormat("zh-CN", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "numeric",
+      day: "numeric"
+    }).formatToParts(new Date());
+    const dateValues = Object.fromEntries(dateParts.map((part) => [part.type, part.value]));
+    const todayMonth = Number(dateValues.month);
+    const todayDay = Number(dateValues.day);
+    const currentYear = Number(dateValues.year);
+    let calendarYear = currentYear;
+    let calendarMonth = todayMonth;
+    let selectedMonth = todayMonth;
+    let selectedDay = todayDay;
+
+    const titleLabel = root.querySelector<HTMLElement>("[data-memory-title]");
+    const summary = root.querySelector<HTMLElement>("[data-memory-summary]");
+    const grid = root.querySelector<HTMLElement>("[data-memory-grid]");
+    const empty = root.querySelector<HTMLElement>("[data-memory-empty]");
+    const calendarYearButton = root.querySelector<HTMLButtonElement>("[data-calendar-year]");
+    const calendarMonthButton = root.querySelector<HTMLButtonElement>("[data-calendar-month]");
+    const jumpForm = root.querySelector<HTMLFormElement>("[data-calendar-jump]");
+    const yearInput = root.querySelector<HTMLInputElement>("[data-calendar-year-input]");
+    const monthSelect = root.querySelector<HTMLSelectElement>("[data-calendar-month-select]");
+    const calendarGrid = root.querySelector<HTMLElement>("[data-calendar-grid]");
+    const previousButton = root.querySelector<HTMLButtonElement>("[data-calendar-previous]");
+    const nextButton = root.querySelector<HTMLButtonElement>("[data-calendar-next]");
+    const todayButton = root.querySelector<HTMLButtonElement>("[data-calendar-today]");
+
+    const getMonthDay = (month: number, day: number) =>
+      `${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+    const getMemories = (month: number, day: number) => {
+      const monthDay = getMonthDay(month, day);
+      return onThisDayMemories.filter((memory) => memory.monthDay === monthDay);
+    };
+
+    const setJumpOpen = (open: boolean, focusTarget?: "year" | "month") => {
+      if (!jumpForm) return;
+      jumpForm.hidden = !open;
+      calendarYearButton?.setAttribute("aria-expanded", String(open));
+      calendarMonthButton?.setAttribute("aria-expanded", String(open));
+
+      if (open) {
+        if (yearInput) yearInput.value = String(calendarYear);
+        if (monthSelect) monthSelect.value = String(calendarMonth);
+        window.requestAnimationFrame(() => {
+          if (focusTarget === "year") {
+            yearInput?.focus();
+            yearInput?.select();
+          } else {
+            monthSelect?.focus();
+          }
+        });
+      }
+    };
+
+    const renderMemories = (month: number, day: number) => {
+      selectedMonth = month;
+      selectedDay = day;
+      const matches = getMemories(month, day);
+      const visibleMatches = matches.slice(0, 6);
+      const isToday = month === todayMonth && day === todayDay;
+
+      if (titleLabel) {
+        titleLabel.textContent = isToday
+          ? "今天，记忆翻到了这一页"
+          : `${month}月${day}日，记忆翻到了这一页`;
+      }
+
+      if (summary) {
+        summary.textContent = matches.length
+          ? `${month}月${day}日，找到了 ${matches.length} 条跨越不同年份的班级记忆。`
+          : `${month}月${day}日，暂时没有同月同日的记录。`;
+      }
+
+      if (grid) {
+        const fragment = document.createDocumentFragment();
+
+        visibleMatches.forEach((memory) => {
+          const card = document.createElement("a");
+          card.className = `memory-card memory-card-${memory.kind}`;
+          card.href = memory.href;
+          card.setAttribute("aria-label", `${memory.year}年${memory.kindLabel}：${memory.title}`);
+          if (memory.external) {
+            card.target = "_blank";
+            card.rel = "noreferrer";
+          }
+
+          if (memory.image) {
+            const image = document.createElement("img");
+            image.src = memory.image;
+            image.alt = "";
+            image.loading = "lazy";
+            card.append(image);
+          } else {
+            const visual = document.createElement("span");
+            visual.className = "memory-card-visual";
+            visual.setAttribute("aria-hidden", "true");
+            visual.textContent = "记";
+            card.append(visual);
+          }
+
+          const copy = document.createElement("span");
+          copy.className = "memory-card-copy";
+
+          const meta = document.createElement("span");
+          meta.className = "memory-card-meta";
+          const yearsAgo = currentYear - memory.year;
+          meta.textContent = `${memory.year}年 · ${yearsAgo > 0 ? `${yearsAgo}年前 · ` : ""}${memory.kindLabel}`;
+
+          const title = document.createElement("strong");
+          title.textContent = memory.title;
+
+          const text = document.createElement("span");
+          text.className = "memory-card-text";
+          text.textContent = memory.text;
+
+          const action = document.createElement("span");
+          action.className = "memory-card-action";
+          action.textContent = memory.external ? "阅读旧文章 ↗" : "翻开这段记忆 →";
+
+          copy.append(meta, title, text, action);
+          card.append(copy);
+          fragment.append(card);
+        });
+
+        grid.replaceChildren(fragment);
+        grid.hidden = matches.length === 0;
+        grid.setAttribute("aria-busy", "false");
+      }
+
+      if (empty) empty.hidden = matches.length > 0;
+    };
+
+    const renderCalendar = () => {
+      if (calendarYearButton) calendarYearButton.textContent = `${calendarYear}年`;
+      if (calendarMonthButton) calendarMonthButton.textContent = `${calendarMonth}月`;
+      if (!calendarGrid) return;
+
+      const fragment = document.createDocumentFragment();
+      const firstWeekday = new Date(calendarYear, calendarMonth - 1, 1).getDay();
+      const daysInMonth = new Date(calendarYear, calendarMonth, 0).getDate();
+
+      for (let index = 0; index < firstWeekday; index += 1) {
+        const spacer = document.createElement("span");
+        spacer.className = "memory-calendar-spacer";
+        spacer.setAttribute("aria-hidden", "true");
+        fragment.append(spacer);
+      }
+
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const matches = getMemories(calendarMonth, day);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.dataset.calendarDay = String(day);
+        button.className = "memory-calendar-day";
+        button.setAttribute(
+          "aria-label",
+          matches.length ? `${calendarMonth}月${day}日，有${matches.length}条记忆` : `${calendarMonth}月${day}日`
+        );
+
+        if (matches.length) {
+          button.classList.add("has-memory");
+          button.dataset.memoryCount = String(matches.length);
+        }
+        if (calendarMonth === selectedMonth && day === selectedDay) {
+          button.classList.add("is-selected");
+          button.setAttribute("aria-pressed", "true");
+        }
+        if (calendarYear === currentYear && calendarMonth === todayMonth && day === todayDay) {
+          button.classList.add("is-today");
+        }
+
+        const number = document.createElement("span");
+        number.textContent = String(day);
+        button.append(number);
+
+        if (matches.length) {
+          const dot = document.createElement("i");
+          dot.setAttribute("aria-hidden", "true");
+          button.append(dot);
+        }
+
+        fragment.append(button);
+      }
+
+      calendarGrid.replaceChildren(fragment);
+    };
+
+    calendarGrid?.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const button = target.closest<HTMLButtonElement>("[data-calendar-day]");
+      if (!button) return;
+
+      renderMemories(calendarMonth, Number(button.dataset.calendarDay));
+      setJumpOpen(false);
+      renderCalendar();
+    });
+
+    calendarYearButton?.addEventListener("click", () => {
+      setJumpOpen(jumpForm?.hasAttribute("hidden") ?? true, "year");
+    });
+
+    calendarMonthButton?.addEventListener("click", () => {
+      setJumpOpen(jumpForm?.hasAttribute("hidden") ?? true, "month");
+    });
+
+    jumpForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!jumpForm.reportValidity() || !yearInput || !monthSelect) return;
+
+      calendarYear = Number(yearInput.value);
+      calendarMonth = Number(monthSelect.value);
+      setJumpOpen(false);
+      renderCalendar();
+    });
+
+    previousButton?.addEventListener("click", () => {
+      setJumpOpen(false);
+      calendarMonth -= 1;
+      if (calendarMonth === 0) {
+        calendarMonth = 12;
+        calendarYear -= 1;
+      }
+      renderCalendar();
+    });
+
+    nextButton?.addEventListener("click", () => {
+      setJumpOpen(false);
+      calendarMonth += 1;
+      if (calendarMonth === 13) {
+        calendarMonth = 1;
+        calendarYear += 1;
+      }
+      renderCalendar();
+    });
+
+    todayButton?.addEventListener("click", () => {
+      setJumpOpen(false);
+      calendarYear = currentYear;
+      calendarMonth = todayMonth;
+      renderMemories(todayMonth, todayDay);
+      renderCalendar();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (jumpForm?.hidden) return;
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (jumpForm?.contains(target) || calendarYearButton?.contains(target) || calendarMonthButton?.contains(target)) return;
+      setJumpOpen(false);
+    });
+
+    root.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && jumpForm && !jumpForm.hidden) {
+        setJumpOpen(false);
+        calendarYearButton?.focus();
+      }
+    });
+
+    renderMemories(todayMonth, todayDay);
+    renderCalendar();
+  }
+</script>
