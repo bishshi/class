@@ -12,17 +12,27 @@ import { articles, featuredArticles } from "../data/articles";
 const previewTimeline = timeline.slice(0, 4);
 const previewPhotoTopics = photoTopics.slice(0, 4);
 const previewPeople = people.slice(0, 6);
+const [heroLead, heroRest] = site.title.split("，");
+const heroRestLead = heroRest.slice(0, 4);
+const heroRestTail = heroRest.slice(4);
 ---
 
 <BaseLayout title={site.name} description={site.description}>
   <section
     id="top"
     class="hero"
-    style={`--hero-image: url("${site.heroImage}")`}
   >
     <div class="hero-content">
+      <div class="archive-index" aria-label="班级档案编号">
+        <span>ARCHIVE NO. 612</span>
+        <span>{site.cohort} · 高平一中</span>
+      </div>
       <p class="eyebrow">{site.anniversary}</p>
-      <h1>{site.title}</h1>
+      <h1>
+        <span>{heroLead}，</span>
+        <span>{heroRestLead}</span>
+        <span>{heroRestTail}</span>
+      </h1>
       <p>{site.subtitle}</p>
       <div class="hero-actions">
         <a class="button primary" href="/timeline/">翻开回忆</a>
@@ -30,6 +40,21 @@ const previewPeople = people.slice(0, 6);
         <a class="button" href="/messages/">写一句话</a>
       </div>
     </div>
+
+    <figure class="hero-photo">
+      <img
+        src={site.heroImage}
+        alt="夕阳照进612班教室，同学们正在低头自习"
+        width="1080"
+        height="810"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <figcaption>
+        <span>高三教室 · 夕阳自习</span>
+        <span>一张真正属于 612 班的照片</span>
+      </figcaption>
+    </figure>
   </section>
 
   <aside class="stats" aria-label="纪念数据">

@@ -10,7 +10,7 @@ export const site = {
   description:
     "高平一中2024届612班纪念网站，收录三年时间线、班级照片、青春刊物和同学近况，保存我们共同走过的高中时光。",
   anniversary: "2024.06 - 2026.06 · 毕业周年纪念",
-  heroImage: "/assets/campus-hero.png",
+  heroImage: "/assets/wechat-archive/wechat-373.webp",
   footer: "高平一中612班纪念网站"
 };
 
