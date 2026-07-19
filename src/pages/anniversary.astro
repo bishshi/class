@@ -1,5 +1,7 @@
 ---
 import "../styles/anniversary.css";
+import SeoHead from "../components/SeoHead.astro";
+import { site } from "../data/site";
 
 const memoryCards = [
   {
@@ -36,6 +38,8 @@ const gallery = [
 const backgroundMusic = "/assets/anniversary/background-music.mp3";
 const anniversaryVideo = "/assets/anniversary/anniversary-video.mp4";
 const videoPoster = "/assets/campus-hero.png";
+const anniversaryDescription =
+  "高平一中2024届612班毕业周年专题，重温三年里的时间切片、班级影像和毕业后的共同回忆。";
 ---
 
 <!doctype html>
@@ -43,11 +47,12 @@ const videoPoster = "/assets/campus-hero.png";
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>2024届12班周年专题</title>
-    <meta
-      name="description"
-      content="2024届12班周年专题页，收下那些毕业之后仍然清晰的瞬间。"
+    <SeoHead
+      title="毕业周年专题"
+      description={anniversaryDescription}
+      image={videoPoster}
     />
+    <meta name="theme-color" content="#2d433c" />
   </head>
   <body>
     <main class="anniversary-page">
@@ -55,7 +60,7 @@ const videoPoster = "/assets/campus-hero.png";
         <img class="hero-media" src="/assets/campus-hero.png" alt="校园记忆" />
         <div class="hero-shade" aria-hidden="true"></div>
         <nav class="topbar" aria-label="周年专题导航">
-          <a class="home-link" href="/">2024届12班</a>
+          <a class="home-link" href="/">{site.name}</a>
           <div class="topbar-links">
             <a href="#memory">时间切片</a>
             <a href="#gallery">影像回放</a>
@@ -151,7 +156,7 @@ const videoPoster = "/assets/campus-hero.png";
           <h2 id="letter-title">写给毕业后的我们</h2>
           <p>
             后来的我们会遇见新的城市、新的课程、新的工作和新的自己。可只要有人再次提起那间教室、那次考试、那张合照，
-            2024届12班就会短暂地重新集合。
+            高平一中612班就会短暂地重新集合。
           </p>
           <p>
             愿每一次回到这里，都不是为了停在过去，而是确认：那些一起认真生活过的日子，已经成为继续往前走的底气。

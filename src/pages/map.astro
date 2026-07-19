@@ -72,7 +72,10 @@ const displayCities = layoutCityMarkers();
 const isDenseMap = displayCities.length > 12;
 ---
 
-<BaseLayout title={`班级地图 · ${site.className}`}>
+<BaseLayout
+  title={`班级地图 · ${site.className}`}
+  description="查看高平一中612班同学毕业后的公开城市分布，记录我们从同一间教室走向不同地方的轨迹。"
+>
   <main class="page-main map-page">
     <section class="page-hero map-hero">
       <div class="section-inner">

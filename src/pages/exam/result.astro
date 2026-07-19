@@ -3,7 +3,11 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import { site } from "../../data/site";
 ---
 
-<BaseLayout title={`成绩分析 · ${site.className}`}>
+<BaseLayout
+  title={`成绩分析 · ${site.className}`}
+  description="高平一中612班综合素质检测的本地成绩分析页。"
+  noindex
+>
   <main class="page-main">
     <section class="page-hero result-hero">
       <div class="section-inner">

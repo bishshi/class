@@ -1,13 +1,22 @@
 ---
 import "../styles/global.css";
 import packageJson from "../../package.json";
+import SeoHead from "../components/SeoHead.astro";
 import { contactLinks, navItems, site } from "../data/site";
 
 interface Props {
   title?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
 }
 
-const { title = site.title } = Astro.props;
+const {
+  title = site.name,
+  description = site.description,
+  image = site.heroImage,
+  noindex = false
+} = Astro.props;
 const buildTime = new Intl.DateTimeFormat("zh-CN", {
   timeZone: "Asia/Shanghai",
   year: "numeric",
@@ -26,14 +35,13 @@ const buildTime = new Intl.DateTimeFormat("zh-CN", {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="description" content={site.subtitle} />
+    <SeoHead {title} {description} {image} {noindex} />
     <meta name="theme-color" content="#156b70" />
     <meta name="application-name" content={site.className} />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content={site.className} />
-    <title>{title}</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/pwa-192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />

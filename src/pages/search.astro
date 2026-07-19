@@ -13,7 +13,11 @@ const typesenseConfig = {
 const isConfigured = Boolean(typesenseConfig.host && typesenseConfig.apiKey);
 ---
 
-<BaseLayout title={`全站搜索 · ${site.className}`}>
+<BaseLayout
+  title={`全站搜索 · ${site.className}`}
+  description="搜索高平一中612班的时间线、照片、青春刊物和同学近况。"
+  noindex
+>
   <main>
     <section class="page-hero search-hero">
       <div class="section-heading">

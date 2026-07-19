@@ -13,7 +13,11 @@ export function getStaticPaths() {
 const { topic } = Astro.props;
 ---
 
-<BaseLayout title={`${topic.title} · ${galleryIntro.title} · ${site.className}`}>
+<BaseLayout
+  title={`${topic.title} · ${galleryIntro.title} · ${site.className}`}
+  description={topic.text}
+  image={topic.cover || site.heroImage}
+>
   <main class="page-main">
     <section class="page-hero">
       <div class="section-inner">

@@ -13,7 +13,11 @@ export function getStaticPaths() {
 const { person } = Astro.props;
 ---
 
-<BaseLayout title={`${person.name} · ${peopleIntro.title} · ${site.className}`}>
+<BaseLayout
+  title={`${person.name} · ${peopleIntro.title} · ${site.className}`}
+  description={`${person.name}的近况：${person.text}`}
+  image={person.photo || site.heroImage}
+>
   <main class="page-main">
     <section class="page-hero person-hero">
       <div class="section-inner person-hero-inner">

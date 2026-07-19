@@ -2,7 +2,7 @@ import { defineConfig } from "astro/config";
 import { fileURLToPath } from "node:url";
 
 export default defineConfig({
-  site: "https://example.com",
+  site: "https://www.2024612.xyz/",
   vite: {
     resolve: {
       alias: {

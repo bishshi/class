@@ -60,7 +60,10 @@ const answerCardQuestions = [
 let questionNumber = 0;
 ---
 
-<BaseLayout title={`${examIntro.title} · ${site.className}`}>
+<BaseLayout
+  title={`${examIntro.title} · ${site.className}`}
+  description={examIntro.description}
+>
   <main class="page-main exam-page">
     <section class="page-hero">
       <div class="section-inner">
@@ -141,7 +144,7 @@ let questionNumber = 0;
                       {
                         fillQuestion?.mode === "unordered-names" ? (
                           <div class="name-fill-grid" aria-label="第 14 题姓名默写作答">
-                            {Array.from({ length: fillQuestion.blankCount }, (_, blankIndex) => (
+                            {Array.from({ length: fillQuestion.blankCount ?? 1 }, (_, blankIndex) => (
                               <label>
                                 <span>{blankIndex + 1}</span>
                                 <input

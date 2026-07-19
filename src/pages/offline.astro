@@ -3,7 +3,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { site } from "../data/site";
 ---
 
-<BaseLayout title={`暂时离线 · ${site.className}`}>
+<BaseLayout
+  title={`暂时离线 · ${site.className}`}
+  description="高平一中612班纪念网站的离线提示页。"
+  noindex
+>
   <main class="offline-page">
     <section class="offline-card" aria-labelledby="offline-title">
       <p class="offline-mark" aria-hidden="true">612</p>

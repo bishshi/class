@@ -1,11 +1,17 @@
 export const site = {
-  className: "2024届612班",
+  name: "高平一中612班",
+  shortName: "612班",
+  className: "高平一中612班",
+  cohort: "2024届",
+  url: "https://www.2024612.xyz/",
   title: "毕业后，我们依然在场",
   subtitle:
     "把散落在相册、聊天记录和心里的瞬间放回同一个地方。这里先留给高中的三年，也留给一年后的我们。",
+  description:
+    "高平一中2024届612班纪念网站，收录三年时间线、班级照片、青春刊物和同学近况，保存我们共同走过的高中时光。",
   anniversary: "2024.06 - 2026.06 · 毕业周年纪念",
   heroImage: "/assets/campus-hero.png",
-  footer: "2024届612班纪念网站"
+  footer: "高平一中612班纪念网站"
 };
 
 export const contactLinks = [
