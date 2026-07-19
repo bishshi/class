@@ -100,7 +100,22 @@ a {
 }
 
 .nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
   opacity: 0.88;
+}
+
+.nav-item-icon {
+  width: 1.15em;
+  flex: 0 0 auto;
+  text-align: center;
+}
+
+.nav a.nav-icon-only {
+  justify-content: center;
+  min-width: 2.25rem;
+  padding-inline: 0.6rem;
 }
 
 .hero {

@@ -69,7 +69,19 @@ const buildTime = new Intl.DateTimeFormat("zh-CN", {
         <span aria-hidden="true"></span>
       </button>
       <nav class="nav" id="site-nav">
-        {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
+        {
+          navItems.map((item) => (
+            <a
+              href={item.href}
+              class:list={[item.iconOnly && "nav-icon-only"]}
+              aria-label={item.iconOnly ? item.label : undefined}
+              title={item.iconOnly ? item.label : undefined}
+            >
+              <i class:list={[item.icon, "nav-item-icon"]} aria-hidden="true"></i>
+              {item.iconOnly ? <span class="sr-only">{item.label}</span> : <span>{item.label}</span>}
+            </a>
+          ))
+        }
       </nav>
     </header>
 
@@ -123,7 +135,7 @@ const buildTime = new Intl.DateTimeFormat("zh-CN", {
         });
 
         nav.addEventListener("click", (event) => {
-          if (event.target instanceof HTMLAnchorElement) {
+          if (event.target instanceof Element && event.target.closest("a")) {
             closeMenu();
           }
         });

@@ -34,15 +34,15 @@ export const contactLinks = [
 ];
 
 export const navItems = [
-  { label: "首页", href: "/" },
-  { label: "三年时间线", href: "/timeline/" },
-  { label: "照片墙", href: "/gallery/" },
-  { label: "青春刊物", href: "/articles/" },
-  { label: "如今的我们", href: "/people/" },
-  { label: "班级地图", href: "/map/" },
-  { label: "综合试卷", href: "/exam/" },
-  { label: "留言墙", href: "/messages/" },
-  { label: "搜索", href: "/search/" }
+  { label: "首页", href: "/", icon: "fa-solid fa-house" },
+  { label: "三年时间线", href: "/timeline/", icon: "fa-solid fa-timeline" },
+  { label: "照片墙", href: "/gallery/", icon: "fa-solid fa-images" },
+  { label: "青春刊物", href: "/articles/", icon: "fa-solid fa-book-open" },
+  { label: "如今的我们", href: "/people/", icon: "fa-solid fa-user-group" },
+  { label: "班级地图", href: "/map/", icon: "fa-solid fa-map-location-dot" },
+  { label: "综合试卷", href: "/exam/", icon: "fa-solid fa-file-pen" },
+  { label: "留言墙", href: "/messages/", icon: "fa-solid fa-comments" },
+  { label: "搜索", href: "/search/", icon: "fa-solid fa-magnifying-glass", iconOnly: true }
 ];
 
 const leavingCampusDate = "2024-06-08";
