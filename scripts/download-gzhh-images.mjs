@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -9,6 +9,7 @@ const outputDirectory = path.join(projectRoot, ".tmp", "gzhh-images", "raw");
 const manifestPath = path.join(projectRoot, ".tmp", "gzhh-images", "manifest.json");
 const concurrency = 8;
 const maxBytes = 20 * 1024 * 1024;
+const supportedHosts = new Set(["mmbiz.qpic.cn", "mmecoa.qpic.cn", "res.wx.qq.com"]);
 
 const extensionByType = new Map([
   ["image/jpeg", ".jpg"],
@@ -32,7 +33,7 @@ for (const source of markdownFiles) {
     } catch {
       continue;
     }
-    if (parsed.hostname !== "mmbiz.qpic.cn") continue;
+    if (!supportedHosts.has(parsed.hostname)) continue;
     const existing = imageMap.get(parsed.href) ?? { url: parsed.href, sources: [], alts: [] };
     if (!existing.sources.includes(source)) existing.sources.push(source);
     if (alt && !existing.alts.includes(alt)) existing.alts.push(alt);
@@ -45,10 +46,31 @@ await mkdir(outputDirectory, { recursive: true });
 const entries = [...imageMap.values()];
 const results = new Array(entries.length);
 const contentFiles = new Map();
+const cachedByUrl = new Map();
+try {
+  const cachedManifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  for (const item of cachedManifest) {
+    if (item.status !== "ok" || !item.url || !item.file || !item.hash) continue;
+    try {
+      await access(path.join(outputDirectory, item.file));
+      cachedByUrl.set(item.url, item);
+      contentFiles.set(item.hash, item.file);
+    } catch {
+      // A missing cache file is downloaded again below.
+    }
+  }
+} catch {
+  // The first run has no manifest to reuse.
+}
 let cursor = 0;
 let completed = 0;
 
 const download = async (entry, index) => {
+  const cached = cachedByUrl.get(entry.url);
+  if (cached) {
+    return { ...cached, sources: entry.sources, alts: entry.alts, cached: true };
+  }
+
   try {
     const response = await fetch(entry.url, {
       headers: {

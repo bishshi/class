@@ -96,7 +96,7 @@ const documents: SearchDocument[] = [
     tags: ["公众号", article.category],
     year: getYear(article.date),
     timestamp: toTimestamp(article.date),
-    url: article.sourceUrl,
+    url: article.path,
     image: article.cover
   })),
   ...people.map((person) => ({

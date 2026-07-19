@@ -184,9 +184,7 @@ const heroRestTail = heroRest.slice(4);
             featuredArticles.map((article, index) => (
               <a
                 class:list={["article-card", index === 0 && "article-card-featured"]}
-                href={article.sourceUrl}
-                target="_blank"
-                rel="noreferrer"
+                href={article.path}
               >
                 <div
                   class="article-cover"
@@ -198,7 +196,7 @@ const heroRestTail = heroRest.slice(4);
                   <time datetime={article.date}>{article.displayDate}</time>
                   <h3>{article.title}</h3>
                   <p>{article.excerpt}</p>
-                  <span class="read-more">阅读原文 <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+                  <span class="read-more">站内阅读 <i class="fa-solid fa-arrow-right"></i></span>
                 </div>
               </a>
             ))

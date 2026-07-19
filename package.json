@@ -8,6 +8,9 @@
     "build": "astro build && node scripts/build-pwa.mjs",
     "build:protected": "astro build && node scripts/encrypt-font.mjs && node scripts/build-pwa.mjs",
     "preview": "astro preview",
+    "articles:download": "node scripts/download-gzhh-images.mjs",
+    "articles:localize": "node scripts/run-localize-gzhh.mjs",
+    "articles:validate": "node scripts/validate-localized-articles.mjs",
     "search:key": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/create-typesense-search-key.mjs",
     "search:sync": "node --env-file-if-exists=.env --env-file-if-exists=.env.local --import tsx scripts/sync-typesense.ts"
   },

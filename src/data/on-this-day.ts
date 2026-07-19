@@ -86,9 +86,9 @@ const articleMemories = articles.map((article, articleIndex) =>
     kind: "article",
     title: article.title,
     text: article.excerpt,
-    href: article.sourceUrl,
+    href: article.path,
     image: article.cover,
-    external: true
+    external: false
   })
 );
 

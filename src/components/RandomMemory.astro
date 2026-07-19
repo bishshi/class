@@ -19,7 +19,7 @@ const memoryGroups = [
   {
     type: "article",
     items: articles.map((article) => ({
-      href: article.sourceUrl,
+      href: article.path,
       title: article.title
     }))
   },
@@ -102,11 +102,6 @@ const memoryGroups = [
         photoDialog.showModal();
         return;
       }
-    }
-
-    if (group.type === "article") {
-      window.open(item.href, "_blank", "noopener,noreferrer");
-      return;
     }
 
     window.location.assign(item.href);

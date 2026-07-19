@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -10,16 +9,12 @@ const outputFile = path.join(projectRoot, "src", "data", "articles.generated.jso
 const cleanMarkdown = (value) =>
   value
     .replace(/!\[[^\]]*\]\([^\)]+\)/g, " ")
+    .replace(/<img\b[^>]*>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
     .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1")
     .replace(/[*_`>#]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-
-const getLocalCoverPath = (url) => {
-  if (!url) return "";
-  const key = createHash("sha256").update(url).digest("hex").slice(0, 12);
-  return `/assets/article-covers/cover-${key}.webp`;
-};
 
 const getExcerpt = (body, title) => {
   const ignored = /(?:data:image|%3Csvg|transform=|阅读|点赞|分享|推荐|留言|2024届612|font-family|__bottom-bar__|sns_opr_btn|picture_content|page_content)/i;
@@ -36,11 +31,24 @@ const getExcerpt = (body, title) => {
 };
 
 const getTitle = (raw, fileName) => {
+  const frontmatterTitle = raw.match(/^---\s*\r?\n[\s\S]*?^title:\s*['"]?(.+?)['"]?\s*$[\s\S]*?^---\s*$/m)?.[1]
+    ?.replaceAll("''", "'")
+    .trim();
+  if (frontmatterTitle) return frontmatterTitle;
   const heading = raw.match(/\r?\n([^\r\n]{2,120})\r?\n={3,}\r?\n/);
   const title = heading?.[1]?.trim();
   return title && title !== "(unknown)"
     ? title
     : fileName.replace(/\.md$/i, "").replaceAll("_", " ");
+};
+
+const getFrontmatterValue = (raw, key) => {
+  const frontmatter = raw.match(/^---\s*\r?\n([\s\S]*?)^---\s*$/m)?.[1] ?? "";
+  const value = frontmatter.match(new RegExp(`^${key}:\\s*(.+?)\\s*$`, "m"))?.[1]?.trim() ?? "";
+  if ((value.startsWith("'") && value.endsWith("'")) || (value.startsWith('"') && value.endsWith('"'))) {
+    return value.slice(1, -1).replaceAll("''", "'");
+  }
+  return value;
 };
 
 const getCategory = (title) => {
@@ -61,26 +69,31 @@ const getCategory = (title) => {
 
 const parseArticle = (fileName, raw) => {
   const title = getTitle(raw, fileName);
-  const date = raw.match(/\b(20\d{2}-\d{2}-\d{2})\b/)?.[1] ?? "";
-  const sourceUrl = raw.match(/原文地址:\s*\[?((?:https?:\/\/)?mp\.weixin\.qq\.com\/s\/[^\s\]\)]+)/)?.[1]
-    ?.replaceAll("\\_", "_") ?? "";
+  const date = getFrontmatterValue(raw, "date") || raw.match(/\b(20\d{2}-\d{2}-\d{2})\b/)?.[1] || "";
+  const category = getFrontmatterValue(raw, "category") || getCategory(title);
+  const slug = getFrontmatterValue(raw, "slug") || fileName.replace(/\.md$/i, "");
+  const frontmatterEnd = raw.match(/^---\s*\r?\n[\s\S]*?^---\s*\r?\n/m)?.[0]?.length ?? 0;
   const contentStart = raw.search(/>\s*原文地址:/);
-  const body = contentStart >= 0 ? raw.slice(contentStart).split(/\r?\n/).slice(2).join("\n") : raw;
-  const images = [...body.matchAll(/!\[[^\]]*\]\((https?:\/\/[^\s\)]+)\)/g)]
-    .map((match) => match[1].replaceAll("&amp;", "&"))
-    .filter((url) => /mmbiz\.qpic\.cn/.test(url));
+  const body = frontmatterEnd > 0
+    ? raw.slice(frontmatterEnd)
+    : contentStart >= 0
+      ? raw.slice(contentStart).split(/\r?\n/).slice(2).join("\n")
+      : raw;
+  const images = [
+    ...body.matchAll(/(?:!\[[^\]]*\]\(|(?:src=["']))(\/assets\/[^\s\)"']+)/g)
+  ].map((match) => match[1]);
   const excerptText = getExcerpt(body, title);
-  const coverSourceUrl = images[0] ?? "";
+  const cover = images[0] || "";
 
   return {
     title,
     date,
     displayDate: date ? date.replaceAll("-", ".") : "日期待补",
-    sourceUrl,
-    cover: getLocalCoverPath(coverSourceUrl),
-    coverSourceUrl,
+    slug,
+    path: `/articles/${encodeURIComponent(slug)}/`,
+    cover,
     excerpt: excerptText.length > 88 ? `${excerptText.slice(0, 88)}…` : excerptText || "一页从公众号找回的班级记录。",
-    category: getCategory(title),
+    category,
     fileName
   };
 };
@@ -91,7 +104,6 @@ const articles = (
     fileNames.map(async (fileName) => parseArticle(fileName, await readFile(path.join(sourceDirectory, fileName), "utf8")))
   )
 )
-  .filter((article) => article.sourceUrl)
   .sort((a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title, "zh-CN"));
 
 await writeFile(outputFile, `${JSON.stringify(articles, null, 2)}\n`, "utf8");

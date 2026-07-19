@@ -17,7 +17,7 @@ const categoryCounts = Object.fromEntries(
         <a class="back-link" href="/">返回首页</a>
         <p class="eyebrow">CLASS PUBLICATION · {articles.length} 篇</p>
         <h1>青春刊物</h1>
-        <p>这里收录公众号里的班级日志、校园时刻与毕业后的来信。原文仍属于公众号，这里为它们做一份更容易寻找的目录。</p>
+        <p>这里收录公众号里的班级日志、校园时刻与毕业后的来信。文章与图片均已在本站存档，可以直接翻阅。</p>
       </div>
     </section>
 
@@ -46,9 +46,7 @@ const categoryCounts = Object.fromEntries(
             articles.map((article, index) => (
               <a
                 class="archive-card"
-                href={article.sourceUrl}
-                target="_blank"
-                rel="noreferrer"
+                href={article.path}
                 data-category={article.category}
                 data-search={`${article.title} ${article.excerpt}`.toLocaleLowerCase("zh-CN")}
               >
@@ -65,7 +63,7 @@ const categoryCounts = Object.fromEntries(
                   </div>
                   <h2>{article.title}</h2>
                   <p>{article.excerpt}</p>
-                  <span class="archive-read">公众号原文 <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+                  <span class="archive-read">站内阅读 <i class="fa-solid fa-arrow-right"></i></span>
                 </div>
               </a>
             ))

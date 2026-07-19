@@ -1,0 +1,327 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { articles, type WechatArticle } from "../../data/articles";
+
+interface MarkdownModule {
+  Content: any;
+}
+
+interface Props {
+  article: WechatArticle;
+}
+
+const articleModules = import.meta.glob<MarkdownModule>("../../../gzhh/*.md", { eager: true });
+
+export function getStaticPaths() {
+  return articles.map((article) => ({
+    params: { slug: article.slug },
+    props: { article }
+  }));
+}
+
+const { article } = Astro.props;
+const moduleEntry = Object.entries(articleModules).find(([filePath]) =>
+  filePath.replaceAll("\\", "/").endsWith(`/${article.fileName}`)
+);
+
+if (!moduleEntry) {
+  throw new Error(`Missing localized Markdown for ${article.fileName}`);
+}
+
+const { Content } = moduleEntry[1];
+const articleIndex = articles.findIndex((item) => item.slug === article.slug);
+const newerArticle = articleIndex > 0 ? articles[articleIndex - 1] : undefined;
+const olderArticle = articleIndex >= 0 && articleIndex < articles.length - 1 ? articles[articleIndex + 1] : undefined;
+---
+
+<BaseLayout title={`${article.title} · 青春刊物`} description={article.excerpt} image={article.cover || undefined}>
+  <main class="page-main localized-article-page">
+    <header class="localized-article-hero">
+      <div class="localized-article-heading">
+        <a class="back-link" href="/articles/">返回青春刊物</a>
+        <p class="eyebrow">{article.category} · 本地存档</p>
+        <h1>{article.title}</h1>
+        <div class="localized-article-meta">
+          <time datetime={article.date}>{article.displayDate}</time>
+          <span>2024届612</span>
+          <span>图文已本地化</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="localized-article-shell">
+      <article class="localized-article-body">
+        <Content />
+      </article>
+
+      <nav class="localized-article-nav" aria-label="相邻文章">
+        {
+          newerArticle ? (
+            <a href={newerArticle.path}>
+              <span>上一篇</span>
+              <strong>{newerArticle.title}</strong>
+            </a>
+          ) : <span />
+        }
+        {
+          olderArticle ? (
+            <a href={olderArticle.path}>
+              <span>下一篇</span>
+              <strong>{olderArticle.title}</strong>
+            </a>
+          ) : <span />
+        }
+      </nav>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .localized-article-page {
+    background:
+      radial-gradient(circle at 12% 2%, rgb(81 151 255 / 10%), transparent 28rem),
+      linear-gradient(180deg, #f7faff 0, #f4f6f9 30rem, #eef1f4 100%);
+  }
+
+  .localized-article-hero {
+    padding: clamp(6.5rem, 11vw, 9rem) 1.25rem 3.5rem;
+  }
+
+  .localized-article-heading,
+  .localized-article-shell {
+    width: min(100%, 860px);
+    margin-inline: auto;
+  }
+
+  .localized-article-heading .back-link {
+    border-color: rgb(42 76 105 / 18%);
+    background: rgb(255 255 255 / 58%);
+    color: #294963;
+    backdrop-filter: blur(10px);
+  }
+
+  .localized-article-heading h1 {
+    max-width: 22em;
+    margin: 1rem 0 1.25rem;
+    font-size: clamp(2rem, 5.5vw, 3.65rem);
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+  }
+
+  .localized-article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 1.1rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .localized-article-meta span:not(:last-child)::after,
+  .localized-article-meta time::after {
+    content: "·";
+    margin-left: 1.1rem;
+    color: rgb(24 42 59 / 30%);
+  }
+
+  .localized-article-shell {
+    padding: 0 1.25rem 5rem;
+  }
+
+  .localized-article-body {
+    overflow: hidden;
+    padding: clamp(1.5rem, 5vw, 4rem);
+    border: 1px solid rgb(29 60 86 / 9%);
+    border-radius: 1.5rem;
+    background: rgb(255 255 255 / 95%);
+    box-shadow: 0 1.5rem 4rem rgb(31 55 76 / 10%);
+    color: #263442;
+    font-size: clamp(1rem, 2.2vw, 1.08rem);
+    line-height: 1.95;
+  }
+
+  .localized-article-body :global(h1),
+  .localized-article-body :global(h2),
+  .localized-article-body :global(h3),
+  .localized-article-body :global(h4) {
+    margin: 2.2em 0 0.8em;
+    color: #152638;
+    line-height: 1.35;
+  }
+
+  .localized-article-body :global(h2) {
+    padding-top: 0.9em;
+    border-top: 1px solid #dce6ee;
+    font-size: clamp(1.45rem, 3vw, 1.85rem);
+    letter-spacing: -0.02em;
+  }
+
+  .localized-article-body :global(h3) {
+    font-size: clamp(1.12rem, 2.2vw, 1.28rem);
+  }
+
+  .localized-article-body :global(h1:first-child),
+  .localized-article-body :global(h2:first-child),
+  .localized-article-body :global(h3:first-child) {
+    margin-top: 0;
+  }
+
+  .localized-article-body :global(p),
+  .localized-article-body :global(ul),
+  .localized-article-body :global(ol),
+  .localized-article-body :global(blockquote) {
+    margin: 1.15em 0;
+  }
+
+  .localized-article-body :global(img) {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    margin: 1.6rem auto;
+    border-radius: 0.65rem;
+  }
+
+  .localized-article-body :global(blockquote) {
+    padding: 0.15rem 0 0.15rem 1.2rem;
+    border-left: 3px solid #6e9ed1;
+    color: #536677;
+  }
+
+  .localized-article-body :global(a) {
+    color: #245f92;
+    text-decoration-color: rgb(36 95 146 / 35%);
+    text-underline-offset: 0.18em;
+  }
+
+  .localized-article-body :global(details) {
+    margin: 1rem 0 1.75rem;
+    border: 1px solid #cfdee9;
+    border-radius: 0.8rem;
+    background: #f5f9fc;
+  }
+
+  .localized-article-body :global(summary) {
+    padding: 0.75rem 1rem;
+    color: #245a84;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .localized-article-body :global(details p) {
+    margin: 0;
+    padding: 0 1rem 0.9rem;
+  }
+
+  .localized-article-body :global(.article-gallery) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+    margin: 1.5rem 0;
+  }
+
+  .localized-article-body :global(.article-gallery img) {
+    width: 100%;
+    height: 100%;
+    min-height: 12rem;
+    max-height: 25rem;
+    margin: 0;
+    object-fit: cover;
+  }
+
+  .localized-article-body :global(table) {
+    display: block;
+    width: 100%;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+
+  .localized-article-body :global(th),
+  .localized-article-body :global(td) {
+    min-width: 9rem;
+    padding: 0.72rem 0.85rem;
+    border: 1px solid #d6e1e9;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .localized-article-body :global(th) {
+    background: #eef5f9;
+    color: #203f58;
+  }
+
+  .localized-article-body :global(code) {
+    padding: 0.12em 0.35em;
+    border-radius: 0.35em;
+    background: #eef3f7;
+    color: #284c68;
+    overflow-wrap: anywhere;
+  }
+
+  .localized-article-body :global(hr) {
+    margin: 2rem 0;
+    border: 0;
+    border-top: 1px solid #dce4ec;
+  }
+
+  .localized-article-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .localized-article-nav a {
+    display: grid;
+    gap: 0.35rem;
+    min-height: 6.5rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid rgb(29 60 86 / 10%);
+    border-radius: 1rem;
+    background: rgb(255 255 255 / 75%);
+    color: #20364a;
+  }
+
+  .localized-article-nav a:last-child {
+    text-align: right;
+  }
+
+  .localized-article-nav span {
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
+  .localized-article-nav strong {
+    line-height: 1.45;
+  }
+
+  @media (max-width: 640px) {
+    .localized-article-hero {
+      padding-bottom: 2.5rem;
+    }
+
+    .localized-article-body {
+      padding: 1.25rem;
+      border-radius: 1rem;
+      line-height: 1.85;
+    }
+
+    .localized-article-body :global(.article-gallery) {
+      grid-template-columns: 1fr;
+    }
+
+    .localized-article-body :global(.article-gallery img) {
+      min-height: 0;
+      max-height: none;
+    }
+
+    .localized-article-nav {
+      grid-template-columns: 1fr;
+    }
+
+    .localized-article-nav a:last-child {
+      text-align: left;
+    }
+  }
+</style>

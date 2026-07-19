@@ -4,9 +4,9 @@ export interface WechatArticle {
   title: string;
   date: string;
   displayDate: string;
-  sourceUrl: string;
+  slug: string;
+  path: string;
   cover: string;
-  coverSourceUrl?: string;
   excerpt: string;
   category: ArticleCategory;
   fileName: string;
