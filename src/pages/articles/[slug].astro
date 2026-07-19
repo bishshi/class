@@ -32,131 +32,473 @@ const { Content } = moduleEntry[1];
 const articleIndex = articles.findIndex((item) => item.slug === article.slug);
 const newerArticle = articleIndex > 0 ? articles[articleIndex - 1] : undefined;
 const olderArticle = articleIndex >= 0 && articleIndex < articles.length - 1 ? articles[articleIndex + 1] : undefined;
+const folioNumber = String(Math.max(1, articles.length - articleIndex)).padStart(3, "0");
 ---
 
 <BaseLayout title={`${article.title} · 青春刊物`} description={article.excerpt} image={article.cover || undefined}>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+
   <main class="page-main localized-article-page">
     <header class="localized-article-hero">
-      <div class="localized-article-heading">
-        <a class="back-link" href="/articles/">返回青春刊物</a>
-        <p class="eyebrow">{article.category} · 本地存档</p>
-        <h1>{article.title}</h1>
-        <div class="localized-article-meta">
-          <time datetime={article.date}>{article.displayDate}</time>
-          <span>2024届612</span>
-          <span>图文已本地化</span>
+      <div class="localized-article-hero-inner">
+        <div class="localized-article-folio" aria-hidden="true">
+          <span>612</span>
+          <strong>NO.{folioNumber}</strong>
+        </div>
+
+        <div class="localized-article-heading">
+          <div class="localized-article-actions">
+            <a class="back-link" href="/articles/">← 返回青春刊物</a>
+            <span>{article.category}</span>
+          </div>
+          <p class="eyebrow">CLASS 612 ARCHIVE / 青春刊物</p>
+          <h1>{article.title}</h1>
+          <p class="localized-article-standfirst">{article.excerpt}</p>
+          <dl class="localized-article-meta">
+            <div>
+              <dt>发布日期</dt>
+              <dd><time datetime={article.date}>{article.displayDate}</time></dd>
+            </div>
+            <div>
+              <dt>档案归属</dt>
+              <dd>高平一中 · 2024届612</dd>
+            </div>
+            <div>
+              <dt>存档状态</dt>
+              <dd>图文已本地化</dd>
+            </div>
+          </dl>
         </div>
       </div>
     </header>
 
     <div class="localized-article-shell">
-      <article class="localized-article-body">
-        <Content />
-      </article>
+      <aside class="localized-article-aside" aria-label="文章档案信息">
+        <div class="archive-stamp">
+          <span>612 / PUBLICATION</span>
+          <strong>{folioNumber}</strong>
+          <small>班级数字档案</small>
+        </div>
 
-      <nav class="localized-article-nav" aria-label="相邻文章">
-        {
-          newerArticle ? (
-            <a href={newerArticle.path}>
-              <span>上一篇</span>
-              <strong>{newerArticle.title}</strong>
-            </a>
-          ) : <span />
-        }
-        {
-          olderArticle ? (
-            <a href={olderArticle.path}>
-              <span>下一篇</span>
-              <strong>{olderArticle.title}</strong>
-            </a>
-          ) : <span />
-        }
-      </nav>
+        <dl class="archive-facts">
+          <div>
+            <dt>分类</dt>
+            <dd>{article.category}</dd>
+          </div>
+          <div>
+            <dt>日期</dt>
+            <dd>{article.displayDate}</dd>
+          </div>
+        </dl>
+
+        <nav class="article-toc" aria-label="本页章节" data-article-toc hidden>
+          <p>本页章节</p>
+          <ol></ol>
+        </nav>
+      </aside>
+
+      <div class="localized-article-main">
+        <article class="localized-article-body">
+          <span class="article-binding" aria-hidden="true"></span>
+          <Content />
+        </article>
+
+        <nav class="localized-article-nav" aria-label="相邻文章">
+          {
+            newerArticle ? (
+              <a href={newerArticle.path}>
+                <span>← 上一篇</span>
+                <strong>{newerArticle.title}</strong>
+                <small>{newerArticle.category} · {newerArticle.displayDate}</small>
+              </a>
+            ) : <span />
+          }
+          {
+            olderArticle ? (
+              <a href={olderArticle.path}>
+                <span>下一篇 →</span>
+                <strong>{olderArticle.title}</strong>
+                <small>{olderArticle.category} · {olderArticle.displayDate}</small>
+              </a>
+            ) : <span />
+          }
+        </nav>
+      </div>
     </div>
   </main>
 </BaseLayout>
 
+<script>
+  const articleBody = document.querySelector<HTMLElement>(".localized-article-body");
+  const progressBar = document.querySelector<HTMLElement>(".reading-progress span");
+  const toc = document.querySelector<HTMLElement>("[data-article-toc]");
+  const tocList = toc?.querySelector("ol");
+
+  if (articleBody && progressBar) {
+    const updateReadingProgress = () => {
+      const rect = articleBody.getBoundingClientRect();
+      const start = window.scrollY + rect.top - 120;
+      const distance = Math.max(1, articleBody.offsetHeight - window.innerHeight * 0.55);
+      const value = Math.min(1, Math.max(0, (window.scrollY - start) / distance));
+      progressBar.style.transform = `scaleX(${value})`;
+    };
+
+    updateReadingProgress();
+    window.addEventListener("scroll", updateReadingProgress, { passive: true });
+    window.addEventListener("resize", updateReadingProgress);
+  }
+
+  if (articleBody && toc && tocList) {
+    const headings = [...articleBody.querySelectorAll<HTMLHeadingElement>("h2")];
+    if (headings.length > 1) {
+      headings.forEach((heading, index) => {
+        heading.id ||= `article-section-${index + 1}`;
+        const item = document.createElement("li");
+        const link = document.createElement("a");
+        link.href = `#${heading.id}`;
+        link.textContent = heading.textContent?.trim() || `第 ${index + 1} 节`;
+        item.append(link);
+        tocList.append(item);
+      });
+      toc.hidden = false;
+    }
+  }
+</script>
+
 <style>
+  .reading-progress {
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 4px;
+    pointer-events: none;
+  }
+
+  .reading-progress span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--coral);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 80ms linear;
+  }
+
   .localized-article-page {
-    background:
-      radial-gradient(circle at 12% 2%, rgb(81 151 255 / 10%), transparent 28rem),
-      linear-gradient(180deg, #f7faff 0, #f4f6f9 30rem, #eef1f4 100%);
+    --article-ink: #18324a;
+    --article-blue: #3f7fd6;
+    --article-coral: #f05a47;
+    --article-sun: #f6c54c;
+    --article-paper: #f7fbff;
+    --article-soft: #e8f2f9;
+    color: var(--article-ink);
+    background-color: #edf5fa;
+    background-image:
+      linear-gradient(rgb(24 50 74 / 3%) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(24 50 74 / 3%) 1px, transparent 1px);
+    background-size: 32px 32px;
   }
 
   .localized-article-hero {
-    padding: clamp(6.5rem, 11vw, 9rem) 1.25rem 3.5rem;
+    color: #fff;
+    border-bottom: 1px solid var(--article-ink);
+    background: var(--article-blue);
   }
 
-  .localized-article-heading,
-  .localized-article-shell {
-    width: min(100%, 860px);
+  .localized-article-hero-inner {
+    display: grid;
+    grid-template-columns: 156px minmax(0, 1fr);
+    width: min(100%, 1180px);
     margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 3.5rem);
   }
 
-  .localized-article-heading .back-link {
-    border-color: rgb(42 76 105 / 18%);
-    background: rgb(255 255 255 / 58%);
-    color: #294963;
-    backdrop-filter: blur(10px);
+  .localized-article-folio {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(4.5rem, 8vw, 7.25rem) 1.25rem 2.25rem 0;
+    border-right: 1px solid rgb(255 255 255 / 42%);
+  }
+
+  .localized-article-folio span {
+    font: 950 clamp(3.9rem, 7vw, 6.5rem)/0.78 var(--display-font);
+    letter-spacing: -0.08em;
+  }
+
+  .localized-article-folio strong {
+    color: var(--article-sun);
+    font: 800 0.78rem/1 var(--utility-font);
+    letter-spacing: 0.08em;
+  }
+
+  .localized-article-heading {
+    min-width: 0;
+    padding: clamp(4.5rem, 8vw, 7.25rem) 0 clamp(3rem, 6vw, 5rem) clamp(2rem, 6vw, 5.5rem);
+  }
+
+  .localized-article-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: clamp(2.8rem, 5vw, 5.25rem);
+  }
+
+  .localized-article-actions .back-link {
+    min-height: 0;
+    padding: 0 0 0.25rem;
+    border: 0;
+    border-bottom: 1px solid rgb(255 255 255 / 58%);
+    color: #fff;
+    background: transparent;
+    font-size: 0.82rem;
+  }
+
+  .localized-article-actions .back-link:hover {
+    color: var(--article-sun);
+    border-color: var(--article-sun);
+    transform: translateX(-3px);
+  }
+
+  .localized-article-actions > span {
+    padding: 0.42rem 0.65rem;
+    color: var(--article-ink);
+    background: var(--article-sun);
+    font: 800 0.72rem/1 var(--utility-font);
+  }
+
+  .localized-article-heading .eyebrow {
+    margin: 0 0 1rem;
+    color: rgb(255 255 255 / 65%);
+    font: 700 0.72rem/1.5 var(--utility-font);
+    letter-spacing: 0.1em;
   }
 
   .localized-article-heading h1 {
-    max-width: 22em;
-    margin: 1rem 0 1.25rem;
-    font-size: clamp(2rem, 5.5vw, 3.65rem);
-    line-height: 1.12;
-    letter-spacing: -0.035em;
+    max-width: 16em;
+    margin: 0;
+    color: #fff;
+    font-family: var(--display-font);
+    font-size: clamp(2.65rem, 6.4vw, 5.65rem);
+    font-weight: 950;
+    line-height: 1.02;
+    letter-spacing: -0.055em;
+    text-wrap: balance;
+  }
+
+  .localized-article-heading h1::after {
+    content: "";
+    display: block;
+    width: 4.5rem;
+    height: 0.45rem;
+    margin-top: 1.4rem;
+    background: var(--article-coral);
+  }
+
+  .localized-article-standfirst {
+    max-width: 44rem;
+    margin: 1.6rem 0 0;
+    color: rgb(255 255 255 / 78%);
+    font-size: clamp(0.96rem, 1.7vw, 1.08rem);
+    line-height: 1.8;
+    text-wrap: pretty;
   }
 
   .localized-article-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem 1.1rem;
-    color: var(--muted);
-    font-size: 0.9rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    margin: clamp(2.2rem, 5vw, 4rem) 0 0;
+    border-top: 1px solid rgb(255 255 255 / 32%);
   }
 
-  .localized-article-meta span:not(:last-child)::after,
-  .localized-article-meta time::after {
-    content: "·";
-    margin-left: 1.1rem;
-    color: rgb(24 42 59 / 30%);
+  .localized-article-meta div {
+    min-width: 0;
+    padding: 0.9rem 1rem 0 0;
+  }
+
+  .localized-article-meta div + div {
+    padding-left: 1rem;
+    border-left: 1px solid rgb(255 255 255 / 32%);
+  }
+
+  .localized-article-meta dt {
+    color: rgb(255 255 255 / 52%);
+    font: 700 0.66rem/1.4 var(--utility-font);
+    letter-spacing: 0.08em;
+  }
+
+  .localized-article-meta dd {
+    margin: 0.35rem 0 0;
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.45;
   }
 
   .localized-article-shell {
-    padding: 0 1.25rem 5rem;
+    display: grid;
+    grid-template-columns: 196px minmax(0, 820px);
+    gap: clamp(2rem, 5vw, 5rem);
+    justify-content: center;
+    width: min(100%, 1180px);
+    margin-inline: auto;
+    padding: clamp(3rem, 7vw, 6rem) clamp(1rem, 4vw, 3.5rem) 6rem;
+  }
+
+  .localized-article-aside {
+    align-self: start;
+    position: sticky;
+    top: 5.5rem;
+  }
+
+  .archive-stamp {
+    padding: 0 0 1rem;
+    border-bottom: 3px solid var(--article-ink);
+  }
+
+  .archive-stamp span,
+  .archive-stamp small {
+    display: block;
+    font: 700 0.65rem/1.45 var(--utility-font);
+    letter-spacing: 0.06em;
+  }
+
+  .archive-stamp strong {
+    display: block;
+    margin: 0.55rem 0;
+    color: var(--article-blue);
+    font: 950 4rem/0.85 var(--display-font);
+    letter-spacing: -0.07em;
+  }
+
+  .archive-stamp small {
+    color: var(--muted);
+  }
+
+  .archive-facts {
+    margin: 0;
+  }
+
+  .archive-facts div {
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .archive-facts dt,
+  .article-toc > p {
+    color: var(--muted);
+    font: 700 0.65rem/1.4 var(--utility-font);
+    letter-spacing: 0.06em;
+  }
+
+  .archive-facts dd {
+    margin: 0.2rem 0 0;
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  .article-toc {
+    margin-top: 2rem;
+  }
+
+  .article-toc ol {
+    display: grid;
+    gap: 0.7rem;
+    margin: 0.8rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .article-toc a {
+    display: block;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--line);
+    color: var(--muted);
+    font-size: 0.76rem;
+    line-height: 1.45;
+  }
+
+  .article-toc a:hover,
+  .article-toc a:focus-visible {
+    border-color: var(--article-coral);
+    color: var(--article-ink);
+  }
+
+  .localized-article-main {
+    min-width: 0;
   }
 
   .localized-article-body {
-    overflow: hidden;
-    padding: clamp(1.5rem, 5vw, 4rem);
-    border: 1px solid rgb(29 60 86 / 9%);
-    border-radius: 1.5rem;
-    background: rgb(255 255 255 / 95%);
-    box-shadow: 0 1.5rem 4rem rgb(31 55 76 / 10%);
-    color: #263442;
-    font-size: clamp(1rem, 2.2vw, 1.08rem);
-    line-height: 1.95;
+    position: relative;
+    overflow: clip;
+    padding: clamp(2.25rem, 6vw, 5rem) clamp(1.5rem, 6vw, 5rem) clamp(3rem, 7vw, 6rem) clamp(3rem, 8vw, 6.75rem);
+    border: 1px solid var(--article-ink);
+    background: var(--surface);
+    color: #263a4a;
+    font-size: clamp(1rem, 1.5vw, 1.08rem);
+    line-height: 2;
+    box-shadow: 12px 12px 0 rgb(63 127 214 / 12%);
+  }
+
+  .article-binding {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 2rem;
+    border-right: 1px solid #d4e1ea;
+    background:
+      radial-gradient(circle at center, #edf5fa 0 4px, var(--article-ink) 4.5px 5.5px, transparent 6px)
+      center 1.1rem / 1.5rem 2.8rem repeat-y;
   }
 
   .localized-article-body :global(h1),
   .localized-article-body :global(h2),
   .localized-article-body :global(h3),
   .localized-article-body :global(h4) {
-    margin: 2.2em 0 0.8em;
-    color: #152638;
-    line-height: 1.35;
+    scroll-margin-top: 5rem;
+    color: var(--article-ink);
+    font-family: var(--display-font);
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
+  .localized-article-body :global(h1) {
+    margin: 0 0 1em;
+    font-size: clamp(2rem, 4vw, 3rem);
   }
 
   .localized-article-body :global(h2) {
-    padding-top: 0.9em;
-    border-top: 1px solid #dce6ee;
-    font-size: clamp(1.45rem, 3vw, 1.85rem);
-    letter-spacing: -0.02em;
+    position: relative;
+    margin: 3em 0 1em;
+    padding: 1.05rem 0 0;
+    border-top: 2px solid var(--article-ink);
+    font-size: clamp(1.55rem, 3vw, 2.1rem);
+    font-weight: 950;
+    letter-spacing: -0.025em;
+  }
+
+  .localized-article-body :global(h2::before) {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: 0;
+    width: 3.5rem;
+    height: 0.42rem;
+    background: var(--article-coral);
   }
 
   .localized-article-body :global(h3) {
-    font-size: clamp(1.12rem, 2.2vw, 1.28rem);
+    margin: 2.1em 0 0.65em;
+    font-size: clamp(1.16rem, 2.2vw, 1.36rem);
+    font-weight: 900;
+  }
+
+  .localized-article-body :global(h4) {
+    margin: 1.8em 0 0.55em;
+    font-size: 1.05rem;
   }
 
   .localized-article-body :global(h1:first-child),
@@ -168,8 +510,35 @@ const olderArticle = articleIndex >= 0 && articleIndex < articles.length - 1 ? a
   .localized-article-body :global(p),
   .localized-article-body :global(ul),
   .localized-article-body :global(ol),
-  .localized-article-body :global(blockquote) {
-    margin: 1.15em 0;
+  .localized-article-body :global(blockquote),
+  .localized-article-body :global(pre) {
+    margin: 1.2em 0;
+  }
+
+  .localized-article-body :global(p) {
+    text-wrap: pretty;
+  }
+
+  .localized-article-body > :global(p:first-of-type) {
+    color: var(--article-ink);
+    font-size: clamp(1.08rem, 2vw, 1.22rem);
+    font-weight: 650;
+    line-height: 1.9;
+  }
+
+  .localized-article-body :global(ul),
+  .localized-article-body :global(ol) {
+    padding-left: 1.35rem;
+  }
+
+  .localized-article-body :global(li) {
+    margin: 0.5em 0;
+    padding-left: 0.25rem;
+  }
+
+  .localized-article-body :global(li::marker) {
+    color: var(--article-coral);
+    font-weight: 900;
   }
 
   .localized-article-body :global(img) {
@@ -177,46 +546,75 @@ const olderArticle = articleIndex >= 0 && articleIndex < articles.length - 1 ? a
     width: auto;
     max-width: 100%;
     height: auto;
-    margin: 1.6rem auto;
-    border-radius: 0.65rem;
+    margin: 2rem auto;
+    border: 1px solid var(--article-ink);
+    background: var(--article-soft);
+    box-shadow: 7px 7px 0 #dce8f0;
   }
 
   .localized-article-body :global(blockquote) {
-    padding: 0.15rem 0 0.15rem 1.2rem;
-    border-left: 3px solid #6e9ed1;
-    color: #536677;
+    position: relative;
+    padding: 1.15rem 1.4rem 1.15rem 3.25rem;
+    border: 0;
+    border-top: 1px solid var(--article-blue);
+    border-bottom: 1px solid var(--article-blue);
+    color: #36586f;
+    background: #edf6fc;
+  }
+
+  .localized-article-body :global(blockquote::before) {
+    content: "“";
+    position: absolute;
+    top: 0.7rem;
+    left: 1rem;
+    color: var(--article-blue);
+    font: 950 2.3rem/1 var(--display-font);
+  }
+
+  .localized-article-body :global(blockquote p) {
+    margin: 0.3em 0;
   }
 
   .localized-article-body :global(a) {
     color: #245f92;
-    text-decoration-color: rgb(36 95 146 / 35%);
-    text-underline-offset: 0.18em;
+    text-decoration-thickness: 1px;
+    text-decoration-color: rgb(36 95 146 / 42%);
+    text-underline-offset: 0.2em;
+  }
+
+  .localized-article-body :global(a:hover) {
+    color: var(--article-coral);
+    text-decoration-color: currentColor;
   }
 
   .localized-article-body :global(details) {
-    margin: 1rem 0 1.75rem;
-    border: 1px solid #cfdee9;
-    border-radius: 0.8rem;
-    background: #f5f9fc;
+    margin: 1.25rem 0 1.8rem;
+    border: 1px solid var(--article-ink);
+    border-left: 5px solid var(--article-sun);
+    background: #f4f9fc;
   }
 
   .localized-article-body :global(summary) {
-    padding: 0.75rem 1rem;
-    color: #245a84;
-    font-weight: 700;
+    padding: 0.82rem 1rem;
+    color: var(--article-ink);
+    font-weight: 850;
     cursor: pointer;
+  }
+
+  .localized-article-body :global(summary:hover) {
+    color: var(--article-blue);
   }
 
   .localized-article-body :global(details p) {
     margin: 0;
-    padding: 0 1rem 0.9rem;
+    padding: 0 1rem 1rem;
   }
 
   .localized-article-body :global(.article-gallery) {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.7rem;
-    margin: 1.5rem 0;
+    gap: 0.75rem;
+    margin: 2rem 0;
   }
 
   .localized-article-body :global(.article-gallery img) {
@@ -226,85 +624,247 @@ const olderArticle = articleIndex >= 0 && articleIndex < articles.length - 1 ? a
     max-height: 25rem;
     margin: 0;
     object-fit: cover;
+    box-shadow: none;
   }
 
   .localized-article-body :global(table) {
     display: block;
     width: 100%;
-    margin: 1.5rem 0;
+    margin: 1.8rem 0;
     overflow-x: auto;
     border-collapse: collapse;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
   }
 
   .localized-article-body :global(th),
   .localized-article-body :global(td) {
     min-width: 9rem;
-    padding: 0.72rem 0.85rem;
-    border: 1px solid #d6e1e9;
+    padding: 0.76rem 0.9rem;
+    border: 1px solid #b8ccd9;
     text-align: left;
     vertical-align: top;
   }
 
   .localized-article-body :global(th) {
-    background: #eef5f9;
-    color: #203f58;
+    color: #fff;
+    background: var(--article-blue);
+    font-weight: 800;
   }
 
   .localized-article-body :global(code) {
     padding: 0.12em 0.35em;
-    border-radius: 0.35em;
-    background: #eef3f7;
+    border: 1px solid #d2e0e9;
+    background: #eef4f8;
     color: #284c68;
+    font-family: var(--utility-font);
+    font-size: 0.88em;
     overflow-wrap: anywhere;
   }
 
-  .localized-article-body :global(hr) {
-    margin: 2rem 0;
+  .localized-article-body :global(pre) {
+    overflow-x: auto;
+    padding: 1.15rem;
+    color: #f7fbff;
+    background: var(--article-ink);
+  }
+
+  .localized-article-body :global(pre code) {
+    padding: 0;
     border: 0;
-    border-top: 1px solid #dce4ec;
+    color: inherit;
+    background: transparent;
+  }
+
+  .localized-article-body :global(hr) {
+    margin: 2.5rem 0;
+    border: 0;
+    border-top: 1px solid #cbd9e2;
   }
 
   .localized-article-nav {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
-    margin-top: 1.25rem;
+    gap: 0;
+    margin-top: 2rem;
+    border: 1px solid var(--article-ink);
+    background: var(--surface);
   }
 
   .localized-article-nav a {
     display: grid;
-    gap: 0.35rem;
-    min-height: 6.5rem;
-    padding: 1rem 1.15rem;
-    border: 1px solid rgb(29 60 86 / 10%);
-    border-radius: 1rem;
-    background: rgb(255 255 255 / 75%);
-    color: #20364a;
+    align-content: start;
+    gap: 0.55rem;
+    min-height: 9rem;
+    padding: 1.3rem 1.45rem;
+    color: var(--article-ink);
+    background: linear-gradient(var(--article-coral), var(--article-coral)) 0 0 / 0.35rem 100% no-repeat;
+    transition: background-color 150ms ease, background-size 150ms ease;
+  }
+
+  .localized-article-nav a + a {
+    border-left: 1px solid var(--article-ink);
   }
 
   .localized-article-nav a:last-child {
     text-align: right;
+    background-position: 100% 0;
+  }
+
+  .localized-article-nav a:hover,
+  .localized-article-nav a:focus-visible {
+    background-color: #eef6fb;
+    background-size: 0.5rem 100%;
   }
 
   .localized-article-nav span {
-    color: var(--muted);
-    font-size: 0.78rem;
+    color: var(--article-blue);
+    font: 800 0.68rem/1 var(--utility-font);
+    letter-spacing: 0.05em;
   }
 
   .localized-article-nav strong {
-    line-height: 1.45;
+    font-family: var(--display-font);
+    font-size: 1.08rem;
+    line-height: 1.35;
+  }
+
+  .localized-article-nav small {
+    color: var(--muted);
+    font-size: 0.72rem;
+  }
+
+  @media (max-width: 900px) {
+    .localized-article-hero-inner {
+      grid-template-columns: 112px minmax(0, 1fr);
+    }
+
+    .localized-article-heading {
+      padding-left: 2.5rem;
+    }
+
+    .localized-article-shell {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .localized-article-aside {
+      position: static;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .article-toc {
+      display: none;
+    }
   }
 
   @media (max-width: 640px) {
-    .localized-article-hero {
-      padding-bottom: 2.5rem;
+    .localized-article-hero-inner {
+      display: block;
+      padding-inline: 1.15rem;
+    }
+
+    .localized-article-folio {
+      flex-direction: row;
+      align-items: center;
+      padding: 2rem 0 1rem;
+      border-right: 0;
+      border-bottom: 1px solid rgb(255 255 255 / 38%);
+    }
+
+    .localized-article-folio span {
+      font-size: 3rem;
+    }
+
+    .localized-article-heading {
+      padding: 1.5rem 0 3rem;
+    }
+
+    .localized-article-actions {
+      margin-bottom: 2.5rem;
+    }
+
+    .localized-article-heading h1 {
+      font-size: clamp(2.4rem, 12vw, 3.9rem);
+      line-height: 1.05;
+    }
+
+    .localized-article-standfirst {
+      font-size: 0.93rem;
+    }
+
+    .localized-article-meta {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .localized-article-meta div:last-child {
+      grid-column: 1 / -1;
+      padding-left: 0;
+      border-left: 0;
+      border-top: 1px solid rgb(255 255 255 / 28%);
+    }
+
+    .localized-article-shell {
+      padding: 2rem 0.75rem 4rem;
+    }
+
+    .localized-article-aside {
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding-inline: 0.4rem;
+    }
+
+    .archive-stamp {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 0.3rem 1rem;
+    }
+
+    .archive-stamp strong {
+      grid-row: 1 / 3;
+      grid-column: 2;
+      margin: 0;
+      font-size: 3rem;
+    }
+
+    .archive-facts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .archive-facts div + div {
+      padding-left: 1rem;
+      border-left: 1px solid var(--line);
     }
 
     .localized-article-body {
-      padding: 1.25rem;
-      border-radius: 1rem;
-      line-height: 1.85;
+      padding: 2rem 1.2rem 3rem 2.5rem;
+      line-height: 1.88;
+      box-shadow: 6px 6px 0 rgb(63 127 214 / 12%);
+    }
+
+    .article-binding {
+      width: 1.55rem;
+      background-size: 1.15rem 2.55rem;
+    }
+
+    .localized-article-body :global(h2) {
+      margin-top: 2.5em;
+    }
+
+    .localized-article-body :global(img) {
+      margin-block: 1.5rem;
+      box-shadow: 4px 4px 0 #dce8f0;
+    }
+
+    .localized-article-body :global(blockquote) {
+      padding: 1rem 1rem 1rem 2.6rem;
+    }
+
+    .localized-article-body :global(blockquote::before) {
+      left: 0.75rem;
     }
 
     .localized-article-body :global(.article-gallery) {
@@ -320,8 +880,51 @@ const olderArticle = articleIndex >= 0 && articleIndex < articles.length - 1 ? a
       grid-template-columns: 1fr;
     }
 
+    .localized-article-nav a + a {
+      border-top: 1px solid var(--article-ink);
+      border-left: 0;
+    }
+
     .localized-article-nav a:last-child {
       text-align: left;
+      background-position: 0 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reading-progress span,
+    .localized-article-nav a {
+      transition: none;
+    }
+  }
+
+  @media print {
+    .reading-progress,
+    .localized-article-aside,
+    .localized-article-nav,
+    .localized-article-actions {
+      display: none;
+    }
+
+    .localized-article-page,
+    .localized-article-hero {
+      color: #000;
+      background: #fff;
+    }
+
+    .localized-article-heading h1,
+    .localized-article-meta dd {
+      color: #000;
+    }
+
+    .localized-article-shell {
+      display: block;
+      padding: 1rem 0;
+    }
+
+    .localized-article-body {
+      border: 0;
+      box-shadow: none;
     }
   }
 </style>
